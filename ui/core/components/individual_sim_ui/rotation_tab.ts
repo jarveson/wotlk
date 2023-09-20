@@ -53,7 +53,7 @@ export class RotationTab extends SimTab {
 		this.buildTabContent();
 
 		this.updateSections();
-		this.simUI.player.rotationChangeEmitter.on(() => this.updateSections());
+		this.addDisposable(this.simUI.player.rotationChangeEmitter.on(() => this.updateSections()));
 	}
 
 	protected buildTabContent() {

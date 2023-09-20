@@ -20,13 +20,13 @@ export class ResourceMetricsTable extends ResultComponent {
 			const childConfig = config;
 			childConfig.parent = containerElem;
 			const table = new TypedResourceMetricsTable(childConfig, resourceType);
-			table.onUpdate.on(() => {
+			this.addDisposable(table.onUpdate.on(() => {
 				if (table.rootElem.classList.contains('hide')) {
 					containerElem.classList.add('hide');
 				} else {
 					containerElem.classList.remove('hide');
 				}
-			});
+			}));
 		});
 	}
 

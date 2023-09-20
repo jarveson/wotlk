@@ -79,7 +79,7 @@ export class RaidStats extends Component {
 		});
 		this.categories = categories;
 
-		raidSimUI.changeEmitter.on(eventID => this.categories.forEach(c => c.update()));
+		this.addDisposable(raidSimUI.changeEmitter.on(eventID => this.categories.forEach(c => c.update())));
 	}
 }
 

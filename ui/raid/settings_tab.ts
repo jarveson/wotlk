@@ -128,7 +128,7 @@ export class SettingsTab extends SimTab {
 		});
 
 		this.simUI.blessingsPicker = new BlessingsPicker(contentBlock.bodyElement, this.simUI);
-		this.simUI.blessingsPicker.changeEmitter.on(eventID => this.simUI.changeEmitter.emit(eventID));
+		this.addDisposable(this.simUI.blessingsPicker.changeEmitter.on(eventID => this.simUI.changeEmitter.emit(eventID)));
 	}
 
 	private buildSavedDataPickers() {

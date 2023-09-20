@@ -186,7 +186,7 @@ export class APLActionIDPicker extends DropdownPicker<Player<any>, ActionID, Act
 			}
 		};
 		updateValues();
-		TypedEvent.onAny([player.sim.unitMetadataEmitter, player.rotationChangeEmitter]).on(updateValues);
+		this.addDisposable(TypedEvent.onAny([player.sim.unitMetadataEmitter, player.rotationChangeEmitter]).on(updateValues));
 	}
 }
 
@@ -249,7 +249,7 @@ export class APLUnitPicker extends UnitPicker<Player<any>> {
 		this.rootElem.classList.add('apl-unit-picker');
 
 		this.updateValues();
-		player.sim.unitMetadataEmitter.on(() => this.updateValues());
+		this.addDisposable(player.sim.unitMetadataEmitter.on(() => this.updateValues()));
 	}
 
 	private static refToValue(ref: UnitReference|undefined, thisPlayer: Player<any>, targetUI: boolean|undefined): UnitValue {

@@ -94,7 +94,7 @@ export abstract class SimUI extends Component {
 			this.sim.changeEmitter,
 		], 'SimUIChange');
 
-		this.sim.crashEmitter.on((eventID: EventID, error: SimError) => this.handleCrash(error));
+		this.addDisposable(this.sim.crashEmitter.on((eventID: EventID, error: SimError) => this.handleCrash(error)));
 
 		const updateShowDamageMetrics = () => {
 			if (this.sim.getShowDamageMetrics())
@@ -103,7 +103,7 @@ export abstract class SimUI extends Component {
 				this.rootElem.classList.add('hide-damage-metrics');
 		};
 		updateShowDamageMetrics();
-		this.sim.showDamageMetricsChangeEmitter.on(updateShowDamageMetrics);
+		this.addDisposable(this.sim.showDamageMetricsChangeEmitter.on(updateShowDamageMetrics));
 
 		const updateShowThreatMetrics = () => {
 			if (this.sim.getShowThreatMetrics())
@@ -112,7 +112,7 @@ export abstract class SimUI extends Component {
 				this.rootElem.classList.add('hide-threat-metrics');
 		};
 		updateShowThreatMetrics();
-		this.sim.showThreatMetricsChangeEmitter.on(updateShowThreatMetrics);
+		this.addDisposable(this.sim.showThreatMetricsChangeEmitter.on(updateShowThreatMetrics));
 
 		const updateShowHealingMetrics = () => {
 			if (this.sim.getShowHealingMetrics())
@@ -121,7 +121,7 @@ export abstract class SimUI extends Component {
 				this.rootElem.classList.add('hide-healing-metrics');
 		};
 		updateShowHealingMetrics();
-		this.sim.showHealingMetricsChangeEmitter.on(updateShowHealingMetrics);
+		this.addDisposable(this.sim.showHealingMetricsChangeEmitter.on(updateShowHealingMetrics));
 
 		const updateShowEpRatios = () => {
 			// Threat metrics *always* shows multiple columns, so
@@ -138,9 +138,9 @@ export abstract class SimUI extends Component {
 		};
 
 		updateShowEpRatios();
-		this.sim.showDamageMetricsChangeEmitter.on(updateShowEpRatios);
-		this.sim.showHealingMetricsChangeEmitter.on(updateShowEpRatios);
-		this.sim.showThreatMetricsChangeEmitter.on(updateShowEpRatios);
+		this.addDisposable(this.sim.showDamageMetricsChangeEmitter.on(updateShowEpRatios));
+		this.addDisposable(this.sim.showHealingMetricsChangeEmitter.on(updateShowEpRatios));
+		this.addDisposable(this.sim.showThreatMetricsChangeEmitter.on(updateShowEpRatios));
 
 		const updateShowExperimental = () => {
 			if (this.sim.getShowExperimental())
@@ -149,7 +149,7 @@ export abstract class SimUI extends Component {
 				this.rootElem.classList.add('hide-experimental');
 		};
 		updateShowExperimental();
-		this.sim.showExperimentalChangeEmitter.on(updateShowExperimental);
+		this.addDisposable(this.sim.showExperimentalChangeEmitter.on(updateShowExperimental));
 
 		this.addKnownIssues(config);
 

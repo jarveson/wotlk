@@ -410,7 +410,7 @@ export class BulkTab extends SimTab {
 		itemList.classList.add('tab-panel-col', 'bulk-gear-combo');
 		itemsBlock.bodyElement.appendChild(itemList);
 
-		this.itemsChangedEmitter.on(() => {
+		this.addDisposable(this.itemsChangedEmitter.on(() => {
 			itemList.innerHTML = '';
 			if (this.items.length > 0) {
 				itemTextIntro.textContent = 'The following items will be simmed together with your equipped gear.';
@@ -420,7 +420,7 @@ export class BulkTab extends SimTab {
 					const bulkItemPicker = new BulkItemPicker(itemList, this.simUI, this, item!, i);
 				}
 			}
-		});
+		}));
 
 		this.clearItems();
 
@@ -434,11 +434,11 @@ export class BulkTab extends SimTab {
 		resultsBlock.rootElem.hidden = true;
 		resultsBlock.bodyElement.classList.add('gear-picker-root', 'tab-panel-col');
 
-		this.simUI.sim.bulkSimStartEmitter.on(() => {
+		this.addDisposable(this.simUI.sim.bulkSimStartEmitter.on(() => {
 			resultsBlock.rootElem.hidden = true;
-		});
+		}));
 
-		this.simUI.sim.bulkSimResultEmitter.on((_, bulkSimResult) => {
+		this.addDisposable(this.simUI.sim.bulkSimResultEmitter.on((_, bulkSimResult) => {
 			resultsBlock.rootElem.hidden = bulkSimResult.results.length == 0;
 			resultsBlock.bodyElement.innerHTML = '';
 
@@ -446,7 +446,7 @@ export class BulkTab extends SimTab {
 				const resultBlock = new ContentBlock(resultsBlock.bodyElement, 'bulk-result', { header: { title: '' }, bodyClasses: ['bulk-results-body'] });
 				new BulkSimResultRenderer(resultBlock, this.simUI, r, bulkSimResult.equippedGearResult!);
 			}
-		});
+		}));
 
 		const settingsBlock = new ContentBlock(this.rightPanel, 'bulk-settings', {
 			header: { title: 'Setup' }
@@ -836,16 +836,11 @@ class GemSelectorModal extends BaseModal {
 				this.onSelect
 			)
 
-			// let invokeUpdate = () => {this.ilist?.updateSelected()}
 			let applyFilter = () => { this.ilist?.applyFilters() }
-			// Add event handlers
-			// this.itemsChangedEmitter.on(invokeUpdate);
+			this.addDisposable(this.ilist);
 
-			this.addOnDisposeCallback(() => this.ilist?.dispose());
-
-			this.simUI.sim.phaseChangeEmitter.on(applyFilter);
-			this.simUI.sim.filtersChangeEmitter.on(applyFilter);
-			// gearData.changeEvent.on(applyFilter);
+			this.addDisposable(this.simUI.sim.phaseChangeEmitter.on(applyFilter));
+			this.addDisposable(this.simUI.sim.filtersChangeEmitter.on(applyFilter));
 		}
 
 		this.open();

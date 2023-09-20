@@ -22,13 +22,13 @@ export abstract class ResultComponent extends Component {
 		super(config.parent, config.rootCssClass || 'result-component');
 		this.lastSimResult = null;
 
-		config.resultsEmitter.on((eventID, resultData) => {
+		this.addDisposable(config.resultsEmitter.on((eventID, resultData) => {
 			if (!resultData)
 				return;
 
 			this.lastSimResult = resultData;
 			this.onSimResult(resultData);
-		});
+		}));
 	}
 
 	hasLastSimResult(): boolean {

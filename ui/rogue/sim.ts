@@ -387,7 +387,7 @@ export class RogueSimUI extends IndividualSimUI<Spec.SpecRogue> {
 				],
 			},
 		})
-		this.player.changeEmitter.on((c) => {
+		this.addDisposable(this.player.changeEmitter.on((c) => {
 			const rotation = this.player.getRotation()
 			const options = this.player.getSpecOptions()
 			const encounter = this.sim.encounter
@@ -439,8 +439,8 @@ export class RogueSimUI extends IndividualSimUI<Spec.SpecRogue> {
 				}
 			}
 			this.player.setSpecOptions(c, options)
-		});
-		this.sim.encounter.changeEmitter.on((c) => {
+		}));
+		this.addDisposable(this.sim.encounter.changeEmitter.on((c) => {
 			const rotation = this.player.getRotation()
 			const options = this.player.getSpecOptions()
 			const encounter = this.sim.encounter
@@ -472,6 +472,6 @@ export class RogueSimUI extends IndividualSimUI<Spec.SpecRogue> {
 				}
 			}
 			this.player.setSpecOptions(c, options)
-		});
+		}));
 	}
 }

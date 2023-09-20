@@ -633,7 +633,7 @@ export class Timeline extends ResultComponent {
 				labelElem.classList.add('hide');
 			}
 		};
-		this.hiddenIdsChangeEmitter.on(updateHidden);
+		this.addDisposable(this.hiddenIdsChangeEmitter.on(updateHidden));
 		updateHidden();
 		const labelIcon = labelElem.getElementsByClassName('rotation-label-icon')[0] as HTMLAnchorElement;
 		actionId.setBackgroundAndHref(labelIcon);
@@ -656,7 +656,7 @@ export class Timeline extends ResultComponent {
 				rowElem.classList.remove('hide');
 			}
 		};
-		this.hiddenIdsChangeEmitter.on(updateHidden);
+		this.addDisposable(this.hiddenIdsChangeEmitter.on(updateHidden));
 		updateHidden();
 		return rowElem;
 	}

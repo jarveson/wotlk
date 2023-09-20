@@ -65,8 +65,6 @@ export class APLRotationPicker extends Component {
 			newItemPicker: (parent: HTMLElement, listPicker: ListPicker<Player<any>, APLListItem>, index: number, config: ListItemPickerConfig<Player<any>, APLListItem>) => new APLListItemPicker(parent, modPlayer, config, index),
 			inlineMenuBar: true,
 		});
-
-		//modPlayer.rotationChangeEmitter.on(() => console.log('APL: ' + APLRotation.toJsonString(modPlayer.aplRotation)))
 	}
 }
 
@@ -89,7 +87,7 @@ class APLPrepullActionPicker extends Input<Player<any>, APLPrepullAction> {
 		this.player = player;
 
 		const itemHeaderElem = ListPicker.getItemHeaderElem(this);
-		makeListItemWarnings(itemHeaderElem, player, player => player.getCurrentStats().rotationStats?.prepullActions[index]?.warnings || []);
+		makeListItemWarnings(this, itemHeaderElem, player, player => player.getCurrentStats().rotationStats?.prepullActions[index]?.warnings || []);
 
 		this.hidePicker = new HidePicker(itemHeaderElem, player, {
 			changedEvent: () => this.player.rotationChangeEmitter,
@@ -185,7 +183,7 @@ class APLListItemPicker extends Input<Player<any>, APLListItem> {
 		this.player = player;
 
 		const itemHeaderElem = ListPicker.getItemHeaderElem(this);
-		makeListItemWarnings(itemHeaderElem, player, player => player.getCurrentStats().rotationStats?.priorityList[index]?.warnings || []);
+		makeListItemWarnings(this, itemHeaderElem, player, player => player.getCurrentStats().rotationStats?.priorityList[index]?.warnings || []);
 
 		this.hidePicker = new HidePicker(itemHeaderElem, player, {
 			changedEvent: () => this.player.rotationChangeEmitter,
@@ -228,7 +226,7 @@ class APLListItemPicker extends Input<Player<any>, APLListItem> {
 	}
 }
 
-function makeListItemWarnings(itemHeaderElem: HTMLElement, player: Player<any>, getWarnings: (player: Player<any>) => Array<string>) {
+function makeListItemWarnings(cmp: Component, itemHeaderElem: HTMLElement, player: Player<any>, getWarnings: (player: Player<any>) => Array<string>) {
 	const warningsElem = ListPicker.makeActionElem('apl-warnings', 'fa-exclamation-triangle');
 	warningsElem.classList.add('warning', 'link-warning');
 	warningsElem.setAttribute('data-bs-html', 'true');
@@ -257,7 +255,7 @@ function makeListItemWarnings(itemHeaderElem: HTMLElement, player: Player<any>, 
 		}
 	};
 	updateWarnings();
-	player.currentStatsEmitter.on(updateWarnings);
+	cmp.addDisposable(player.currentStatsEmitter.on(updateWarnings));
 }
 
 class HidePicker extends Input<Player<any>, boolean> {

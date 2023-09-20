@@ -346,10 +346,10 @@ export abstract class IndividualSimUI<SpecType extends Spec> extends SimUI {
 			this.player.setName(initEventID, 'Player');
 
 			// This needs to go last so it doesn't re-store things as they are initialized.
-			this.changeEmitter.on(eventID => {
+			this.addDisposable(this.changeEmitter.on(eventID => {
 				const jsonStr = IndividualSimSettings.toJsonString(this.toProto());
 				window.localStorage.setItem(this.getSettingsStorageKey(), jsonStr);
-			});
+			}));
 		});
 	}
 
@@ -372,9 +372,9 @@ export abstract class IndividualSimUI<SpecType extends Spec> extends SimUI {
 	private addBulkTab(): BulkTab {
 		let bulkTab = new BulkTab(this.simTabContentsContainer, this);
 		bulkTab.navLink.hidden = !this.sim.getShowExperimental()
-		this.sim.showExperimentalChangeEmitter.on(() => {
+		this.addDisposable(this.sim.showExperimentalChangeEmitter.on(() => {
 			bulkTab.navLink.hidden = !this.sim.getShowExperimental();
-		});
+		}));
 		return bulkTab;
 	}
 

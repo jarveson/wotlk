@@ -160,7 +160,7 @@ export class SavedDataManager<ModObject, T> extends Component {
 		};
 
 		checkActive();
-		this.config.changeEmitters.forEach(emitter => emitter.on(checkActive));
+		this.config.changeEmitters.forEach(emitter => this.addDisposable(emitter.on(checkActive)));
 
 		return {
 			name: config.name,

@@ -20,9 +20,9 @@ export class CooldownsPicker extends Component {
 		this.player = player;
 		this.cooldownPickers = [];
 
-		TypedEvent.onAny([this.player.cooldownsChangeEmitter, this.player.sim.unitMetadataEmitter]).on(eventID => {
+		this.addDisposable(TypedEvent.onAny([this.player.cooldownsChangeEmitter, this.player.sim.unitMetadataEmitter]).on(eventID => {
 			this.update();
-		});
+		}));
 		this.update();
 	}
 

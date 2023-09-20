@@ -52,14 +52,14 @@ export class ItemSwapPicker<SpecType extends Spec, T> extends Component {
 
 		swapButton.addEventListener('click', event => { this.swapWithGear(player, config) });
 
-		config.changedEvent(player).on(eventID => {
+		this.addDisposable(config.changedEvent(player).on(eventID => {
 			const show = !config.showWhen || config.showWhen(player);
 			if (show) {
 				this.rootElem.classList.remove('hide');
 			} else {
 				this.rootElem.classList.add('hide');
 			}
-		});
+		}));
 
 		config.itemSlots.forEach(itemSlot => {
 			new IconItemSwapPicker(itemSwapContainer, simUI, player, itemSlot, config);

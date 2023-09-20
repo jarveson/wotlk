@@ -89,7 +89,7 @@ export class MultiIconPicker<ModObject> extends Component {
 			return new IconPicker(optionContainer, modObj, pickerConfig);
 		});
 		simUI.sim.waitForInit().then(() => this.updateButtonImage());
-		simUI.changeEmitter.on(() => this.updateButtonImage());
+		this.addDisposable(simUI.changeEmitter.on(() => this.updateButtonImage()));
 	}
 
 	private buildBlankOption() {

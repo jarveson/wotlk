@@ -56,7 +56,7 @@ abstract class AssignedBuffPicker extends Component {
 		this.playersContainer.classList.add('assigned-buff-container');
 		this.rootElem.appendChild(this.playersContainer);
 
-		this.raidSimUI.changeEmitter.on(eventID => this.update());
+		this.addDisposable(this.raidSimUI.changeEmitter.on(eventID => this.update()));
 		this.update();
 	}
 
@@ -87,7 +87,7 @@ abstract class AssignedBuffPicker extends Component {
 			arrow.classList.add('assigned-buff-arrow', 'fa', 'fa-arrow-right');
 			row.appendChild(arrow);
 
-			const raidTargetPicker: UnitReferencePicker<Player<any>> | null = new UnitReferencePicker<Player<any>>(row, this.raidSimUI.sim.raid, sourcePlayer, {
+			const raidTargetPicker: UnitReferencePicker<Player<any>> = new UnitReferencePicker<Player<any>>(row, this.raidSimUI.sim.raid, sourcePlayer, {
 				extraCssClasses: ['assigned-buff-target-picker'],
 				noTargetLabel: 'Unassigned',
 				compChangeEmitter: this.raidSimUI.sim.raid.compChangeEmitter,
@@ -99,13 +99,13 @@ abstract class AssignedBuffPicker extends Component {
 
 			const targetPickerData = {
 				player: sourcePlayer,
-				targetPicker: raidTargetPicker!,
+				targetPicker: raidTargetPicker,
 				targetPlayer: this.raidSimUI.sim.raid.getPlayerFromUnitReference(raidTargetPicker!.getInputValue()),
 			};
 
-			raidTargetPicker!.changeEmitter.on(eventID => {
+			this.addDisposable(raidTargetPicker.changeEmitter.on(eventID => {
 				targetPickerData.targetPlayer = this.raidSimUI.sim.raid.getPlayerFromUnitReference(raidTargetPicker!.getInputValue());
-			});
+			}));
 
 			return targetPickerData;
 		});

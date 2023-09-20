@@ -187,7 +187,7 @@ export class HunterPetTalentsPicker extends Component {
 			return picker;
 		});
 
-		player.specOptionsChangeEmitter.on(() => {
+		this.addDisposable(player.specOptionsChangeEmitter.on(() => {
 			const petCategory = this.getCategoryFromPlayer();
 			const categoryIdx = categoryOrder.indexOf(petCategory);
 
@@ -209,7 +209,7 @@ export class HunterPetTalentsPicker extends Component {
 					this.curTalents = options.petTalents;
 				}
 			}
-		});
+		}));
 
 		const updateIsBM = () => {
 			const maxPoints = this.player.getTalents().beastMastery ? 20 : 16;

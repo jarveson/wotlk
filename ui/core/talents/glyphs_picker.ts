@@ -241,9 +241,9 @@ class GlyphSelectorModal extends BaseModal {
 			}
 		});
 
-		glyphPicker.player.glyphsChangeEmitter.on(() => {
+		this.addDisposable(glyphPicker.player.glyphsChangeEmitter.on(() => {
 			applyFilters();
 			updateSelected();
-		});
+		}));
 	}
 }

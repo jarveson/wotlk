@@ -59,9 +59,9 @@ export class CharacterStats extends Component {
 		});
 
 		this.updateStats(player);
-		TypedEvent.onAny([player.currentStatsEmitter, player.sim.changeEmitter]).on(() => {
+		this.addDisposable(TypedEvent.onAny([player.currentStatsEmitter, player.sim.changeEmitter]).on(() => {
 			this.updateStats(player);
-		});
+		}));
 	}
 
 	private updateStats(player: Player<any>) {

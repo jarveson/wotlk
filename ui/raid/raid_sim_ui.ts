@@ -55,12 +55,12 @@ export class RaidSimUI extends SimUI {
 
 		this.config = config;
 
-		this.sim.raid.compChangeEmitter.on(eventID => this.compChangeEmitter.emit(eventID));
+		this.addDisposable(this.sim.raid.compChangeEmitter.on(eventID => this.compChangeEmitter.emit(eventID)));
 		[
 			this.compChangeEmitter,
 			this.sim.changeEmitter,
-		].forEach(emitter => emitter.on(eventID => this.changeEmitter.emit(eventID)));
-		this.changeEmitter.on(() => this.recomputeSettingsLayout());
+		].forEach(emitter => this.addDisposable(emitter.on(eventID => this.changeEmitter.emit(eventID))));
+		this.addDisposable(this.changeEmitter.on(() => this.recomputeSettingsLayout()));
 
 		this.sim.setModifyRaidProto(raidProto => this.modifyRaidProto(raidProto));
 		this.sim.waitForInit().then(() => this.loadSettings());
@@ -93,16 +93,16 @@ export class RaidSimUI extends SimUI {
 			}
 
 			// This needs to go last so it doesn't re-store things as they are initialized.
-			this.changeEmitter.on(eventID => {
+			this.addDisposable(this.changeEmitter.on(eventID => {
 				const jsonStr = RaidSimSettings.toJsonString(this.toProto());
 				window.localStorage.setItem(this.getSettingsStorageKey(), jsonStr);
-			});
+			}));
 		});
 	}
 
 	private addSidebarComponents() {
 		this.raidSimResultsManager = addRaidSimAction(this);
-		this.raidSimResultsManager.changeEmitter.on(eventID => this.referenceChangeEmitter.emit(eventID));
+		this.addDisposable(this.raidSimResultsManager.changeEmitter.on(eventID => this.referenceChangeEmitter.emit(eventID)));
 	}
 
 	private addTopbarComponents() {

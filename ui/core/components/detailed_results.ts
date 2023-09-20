@@ -230,7 +230,8 @@ export abstract class DetailedResults extends Component {
 		this.rootElem.innerHTML = layoutHTML;
 		this.simUI = simUI;
 
-		this.simUI?.sim.settingsChangeEmitter.on(async () => await this.updateSettings());
+		if (this.simUI)
+			this.addDisposable(this.simUI.sim.settingsChangeEmitter.on(async () => await this.updateSettings()));
 
 		Chart.defaults.color = 'white';
 
@@ -292,10 +293,10 @@ export abstract class DetailedResults extends Component {
 		this.rootElem.classList.add('hide-threat-metrics');
 		this.rootElem.classList.add('hide-healing-metrics');
 
-		this.resultsFilter.changeEmitter.on(() => this.updateResults());
+		this.addDisposable(this.resultsFilter.changeEmitter.on(() => this.updateResults()));
 
 		const rootDiv = this.rootElem.getElementsByClassName('dr-root')[0] as HTMLElement;
-		this.resultsEmitter.on((eventID, resultData) => {
+		this.addDisposable(this.resultsEmitter.on((eventID, resultData) => {
 			if (resultData?.filter.player || resultData?.filter.player === 0) {
 				rootDiv.classList.remove('all-players');
 				rootDiv.classList.add('single-player');
@@ -303,7 +304,7 @@ export abstract class DetailedResults extends Component {
 				rootDiv.classList.add('all-players');
 				rootDiv.classList.remove('single-player');
 			}
-		});
+		}));
 	}
 
 	abstract postMessage(update: DetailedResultsUpdate): Promise<void>;
@@ -450,13 +451,13 @@ export class EmbeddedDetailedResults extends DetailedResults {
 			(window.opener || window.parent)!.postMessage('runOnce', '*');
 		});
 
-		simResultsManager.currentChangeEmitter.on(async () => {
+		this.addDisposable(simResultsManager.currentChangeEmitter.on(async () => {
 			const runData = simResultsManager.getRunData();
 			if (runData) {
 				await this.updateSettings();
 				await this.setSimRunData(runData);
 			}
-		});
+		}));
 	}
 
 	async postMessage(update: DetailedResultsUpdate) {

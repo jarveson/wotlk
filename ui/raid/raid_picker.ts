@@ -122,7 +122,7 @@ export class RaidPicker extends Component {
 				}
 			});
 		};
-		this.raidSimUI.sim.raid.numActivePartiesChangeEmitter.on(updateActiveParties);
+		this.addDisposable(this.raidSimUI.sim.raid.numActivePartiesChangeEmitter.on(updateActiveParties));
 		updateActiveParties();
 
 		this.rootElem.ondragend = event => {
@@ -220,7 +220,7 @@ export class PartyPicker extends Component {
 		const dpsResultElem = this.rootElem.getElementsByClassName('party-results-dps')[0] as HTMLElement;
 		const referenceDeltaElem = this.rootElem.getElementsByClassName('party-results-reference-delta')[0] as HTMLElement;
 
-		this.raidPicker.raidSimUI.referenceChangeEmitter.on(() => {
+		this.addDisposable(this.raidPicker.raidSimUI.referenceChangeEmitter.on(() => {
 			const currentData = this.raidPicker.raidSimUI.getCurrentData();
 			const referenceData = this.raidPicker.raidSimUI.getReferenceData();
 
@@ -241,7 +241,7 @@ export class PartyPicker extends Component {
 			}
 
 			formatDeltaTextElem(referenceDeltaElem, referenceDps, partyDps, 1);
-		});
+		}));
 
 		this.rootElem.ondragstart = event => {
 			if (event.target == this.rootElem) {
@@ -339,13 +339,13 @@ export class PlayerPicker extends Component {
 
 		this.rootElem.classList.add('player');
 
-		this.partyPicker.party.compChangeEmitter.on(eventID => {
+		this.addDisposable(this.partyPicker.party.compChangeEmitter.on(eventID => {
 			const newPlayer = this.partyPicker.party.getPlayer(this.index);
 			if (newPlayer != this.player)
 				this.setPlayer(eventID, newPlayer, DragType.None);
-		});
+		}));
 
-		this.raidPicker.raidSimUI.referenceChangeEmitter.on(() => {
+		this.addDisposable(this.raidPicker.raidSimUI.referenceChangeEmitter.on(() => {
 			const currentData = this.raidPicker.raidSimUI.getCurrentData();
 			const referenceData = this.raidPicker.raidSimUI.getReferenceData();
 
@@ -359,7 +359,7 @@ export class PlayerPicker extends Component {
 				if (referenceData)
 					formatDeltaTextElem(this.referenceDeltaElem as HTMLElement, referenceDps, playerDps, 1);
 			}
-		});
+		}));
 
 		let dragEnterCounter = 0;
 		this.rootElem.ondragenter = event => {

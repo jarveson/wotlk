@@ -50,11 +50,11 @@ export class IconEnumPicker<ModObject, T> extends Input<ModObject, T> {
 		this.currentValue = this.config.zeroValue;
 
 		if (config.showWhen) {
-			config.changedEvent(this.modObject).on(eventID => {
+			this.addDisposable(config.changedEvent(this.modObject).on(eventID => {
 				const show = config.showWhen && config.showWhen(this.modObject);
 				if (!show)
 					this.rootElem.classList.add('hide');
-			});
+			}));
 		}
 
 		if (config.tooltip) {
@@ -114,13 +114,13 @@ export class IconEnumPicker<ModObject, T> extends Input<ModObject, T> {
 			}
 
 			if (valueConfig.showWhen) {
-				config.changedEvent(this.modObject).on(eventID => {
+				this.addDisposable(config.changedEvent(this.modObject).on(eventID => {
 					const show = valueConfig.showWhen && valueConfig.showWhen(this.modObject);
 					if (show)
 						optionContainer.classList.remove('hide');
 					else
 						optionContainer.classList.add('hide');
-				});
+				}));
 			}
 
 			option.addEventListener('click', event => {

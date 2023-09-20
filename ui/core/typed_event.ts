@@ -2,12 +2,11 @@
 // some user action like changing a piece of gear.
 //
 // Event IDs allow us to make sure that hierarchies of TypedEvents fire only once,
+
+import { IDisposable } from "./IDisposable";
+
 // for a given event. This is very important for certain features, like undo/redo.
 export type EventID = number;
-
-export interface Disposable {
-	dispose(): void;
-}
 
 export interface Listener<T> {
 	(eventID: EventID, event: T): any;
@@ -42,7 +41,7 @@ export class TypedEvent<T> {
 	private frozenEvents: Array<FrozenEventData<T>> = [];
 
 	// Registers a new listener to this event.
-	on(listener: Listener<T>): Disposable {
+	on(listener: Listener<T>): IDisposable {
 		this.listeners.push(listener);
 		return {
 			dispose: () => this.off(listener),
@@ -58,7 +57,7 @@ export class TypedEvent<T> {
 	}
 
 	// Convenience for on() which calls off() autmatically after firing once.
-	once(listener: Listener<T>): Disposable {
+	once(listener: Listener<T>): IDisposable {
 		const onceListener = (eventID: EventID, event: T) => {
 			this.off(onceListener);
 			listener(eventID, event);

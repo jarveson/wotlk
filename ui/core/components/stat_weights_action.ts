@@ -413,7 +413,7 @@ class EpWeightsMenu extends BaseModal {
 		};
 		const epRatioCells = this.body.querySelectorAll('.type-ratio.type-ep') as NodeListOf<HTMLElement>;
 		epRatioCells.forEach(makeEpRatioCell);
-		this.simUI.player.epRatiosChangeEmitter.on(_eventID => this.updateTable());
+		this.addDisposable(this.simUI.player.epRatiosChangeEmitter.on(_eventID => this.updateTable()));
 
 		const weightRatioCells = this.body.querySelectorAll('.type-ratio.type-weight') as NodeListOf<HTMLElement>;
 		weightRatioCells.forEach(makeEpRatioCell);

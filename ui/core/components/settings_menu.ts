@@ -56,7 +56,7 @@ export class SettingsMenu extends BaseModal {
 
 		const lastUsedRngSeed = this.rootElem.getElementsByClassName('last-used-rng-seed')[0] as HTMLElement;
 		lastUsedRngSeed.textContent = String(this.simUI.sim.getLastUsedRngSeed());
-		this.simUI.sim.lastUsedRngSeedChangeEmitter.on(() => lastUsedRngSeed.textContent = String(this.simUI.sim.getLastUsedRngSeed()));
+		this.addDisposable(this.simUI.sim.lastUsedRngSeedChangeEmitter.on(() => lastUsedRngSeed.textContent = String(this.simUI.sim.getLastUsedRngSeed())));
 
 		const language = this.rootElem.getElementsByClassName('language-picker')[0] as HTMLElement;
 		const langs = Object.keys(wowheadSupportedLanguages);
@@ -80,7 +80,7 @@ export class SettingsMenu extends BaseModal {
 			},
 		});
 		// Refresh page after language change, to apply the changes.
-		languagePicker.changeEmitter.on(() => setTimeout(() => location.reload(), 100));
+		this.addDisposable(languagePicker.changeEmitter.on(() => setTimeout(() => location.reload(), 100)));
 
 		const showThreatMetrics = this.rootElem.getElementsByClassName('show-threat-metrics-picker')[0] as HTMLElement;
 		new BooleanPicker(showThreatMetrics, this.simUI.sim, {

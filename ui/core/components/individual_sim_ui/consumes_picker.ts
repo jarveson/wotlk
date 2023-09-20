@@ -236,7 +236,7 @@ export class ConsumesPicker extends Component {
 			else
 				tradeConsumesElem.parentElement!.classList.add('hide');
 		};
-		this.simUI.player.professionChangeEmitter.on(updateProfession);
+		this.addDisposable(this.simUI.player.professionChangeEmitter.on(updateProfession));
 		updateProfession();
 	}
 

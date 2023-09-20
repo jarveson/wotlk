@@ -53,7 +53,7 @@ export class UnitReferencePicker<ModObject> extends Input<ModObject, UnitReferen
 
 		this.currentOptions = [];
 		this.updateOptions(TypedEvent.nextEventID());
-		config.compChangeEmitter.on(eventID => this.updateOptions(eventID));
+		this.addDisposable(config.compChangeEmitter.on(eventID => this.updateOptions(eventID)));
 
 		this.init();
 	}

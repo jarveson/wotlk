@@ -101,7 +101,7 @@ export class ResultsViewer extends Component {
 
 	addWarning(warning: SimWarning) {
 		this.warnings.push(warning);
-		warning.updateOn.on(() => this.updateWarnings());
+		this.addDisposable(warning.updateOn.on(() => this.updateWarnings()));
 		this.updateWarnings();
 	}
 

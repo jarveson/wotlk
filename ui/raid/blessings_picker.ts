@@ -89,7 +89,7 @@ export class BlessingsPicker extends Component {
 		});
 
 		this.updatePickers()
-		this.simUI.compChangeEmitter.on(_eventID => this.updatePickers());
+		this.addDisposable(this.simUI.compChangeEmitter.on(_eventID => this.updatePickers()));
 	}
 
 	private updatePickers() {

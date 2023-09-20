@@ -15,7 +15,7 @@ import { setItemQualityCssClass } from '../css_utils';
 import { Player } from '../player';
 import { Sim } from '../sim.js';
 import { SimUI } from '../sim_ui';
-import { EventID, TypedEvent } from '../typed_event';
+import { Disposable, EventID, TypedEvent } from '../typed_event';
 import { formatDeltaTextElem } from '../utils';
 
 import { ActionId } from '../proto_utils/action_id';
@@ -46,6 +46,7 @@ import { Tooltip } from 'bootstrap';
 import { element, fragment, ref } from 'tsx-vanilla';
 
 import { Clusterize } from './virtual_scroll/clusterize.js';
+import { IDisposable } from '../IDisposable.js';
 
 const EP_TOOLTIP = `
 	EP (Equivalence Points) is way of comparing items by multiplying the raw stats of an item with your current stat weights.
@@ -209,7 +210,7 @@ export class ItemRenderer extends Component {
 						gemContainer.classList.add('hide');
 					}
 				};
-				this.player.professionChangeEmitter.on(updateProfession);
+				this.addDisposable(this.player.professionChangeEmitter.on(updateProfession));
 				updateProfession();
 			}
 			this.socketsContainerElem.appendChild(gemContainer);
@@ -264,14 +265,14 @@ export class ItemPicker extends Component {
 			this.itemElem.enchantElem.addEventListener('click', openEnchantSelector);
 		});
 
-		player.gearChangeEmitter.on(() => {
+		this.addDisposable(player.gearChangeEmitter.on(() => {
 			this.item = player.getEquippedItem(slot);
-		});
-		player.professionChangeEmitter.on(() => {
+		}));
+		this.addDisposable(player.professionChangeEmitter.on(() => {
 			if (this._equippedItem != null) {
 				this.player.setWowheadData(this._equippedItem, this.itemElem.iconElem);
 			}
-		});
+		}));
 	}
 
 	set item(newItem: EquippedItem | null) {
@@ -633,9 +634,7 @@ export class SelectorModal extends BaseModal {
 							gemElem.setAttribute('src', emptySocketUrl);
 						}
 					};
-
-					gearData.changeEvent.on(updateGemIcon);
-					this.addOnDisposeCallback(() => gearData.changeEvent.off(updateGemIcon));
+					this.addDisposable(gearData.changeEvent.on(updateGemIcon));
 					updateGemIcon();
 				});
 		});
@@ -722,19 +721,12 @@ export class SelectorModal extends BaseModal {
 		let applyFilter = () => { ilist.applyFilters() }
 		let hideOrShowEPValues = () => { ilist.hideOrShowEPValues() }
 		// Add event handlers
-		gearData.changeEvent.on(invokeUpdate);
 
-		this.player.sim.phaseChangeEmitter.on(applyFilter);
-		this.player.sim.filtersChangeEmitter.on(applyFilter);
-		this.player.sim.showEPValuesChangeEmitter.on(hideOrShowEPValues);
-
-		this.addOnDisposeCallback(() => {
-			gearData.changeEvent.off(invokeUpdate)
-			this.player.sim.phaseChangeEmitter.off(applyFilter);
-			this.player.sim.filtersChangeEmitter.off(applyFilter);
-			this.player.sim.showEPValuesChangeEmitter.off(hideOrShowEPValues);
-			ilist.dispose();
-		});
+		this.addDisposable(gearData.changeEvent.on(invokeUpdate));
+		this.addDisposable(this.player.sim.phaseChangeEmitter.on(applyFilter));
+		this.addDisposable(this.player.sim.filtersChangeEmitter.on(applyFilter));
+		this.addDisposable(this.player.sim.showEPValuesChangeEmitter.on(hideOrShowEPValues));
+		this.addDisposable(ilist);
 
 		tabAnchor.value!.addEventListener('shown.bs.tab', (event) => {
 			ilist.sizeRefresh()
@@ -797,7 +789,7 @@ export function getEmptySlotIconUrl(slot: ItemSlot): string {
 	return emptySlotIcons[slot];
 }
 
-export class ItemList<T> {
+export class ItemList<T> implements IDisposable {
 	private listElem: HTMLElement;
 	private readonly player: Player<any>;
 	private label: string;
@@ -813,6 +805,8 @@ export class ItemList<T> {
 	private tabContent: Element;
 	private onItemClick: (itemData: ItemData<T>) => void;
 	private scroller: Clusterize;
+
+	private eDispose: IDisposable | null = null;
 
 	constructor(
 		parent: HTMLElement,
@@ -948,7 +942,7 @@ export class ItemList<T> {
 		const simAllButton = this.tabContent.getElementsByClassName('selector-modal-simall-button')[0] as HTMLButtonElement;
 		if (label == "Items") {
 			simAllButton.hidden = !player.sim.getShowExperimental()
-			player.sim.showExperimentalChangeEmitter.on(() => {
+			this.eDispose = player.sim.showExperimentalChangeEmitter.on(() => {
 				simAllButton.hidden = !player.sim.getShowExperimental();
 			});
 			simAllButton.addEventListener('click', (event) => {
@@ -993,6 +987,7 @@ export class ItemList<T> {
 
 	public dispose() {
 		this.scroller.dispose();
+		this.eDispose?.dispose();
 	}
 
 	public updateSelected() {

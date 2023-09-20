@@ -84,7 +84,7 @@ export class ResultsViewer extends Component {
 			};
 			link.setAttribute('data-bs-title', args.tooltip);
 		}
-		new Tooltip(link, cfg);
+		this.addDisposable(new Tooltip(link, cfg));
 		args.parent.appendChild(item);
 
 		return item as HTMLElement;
@@ -122,11 +122,11 @@ export class ResultsViewer extends Component {
 			});
 		}
 		this.warningsLink.setAttribute('data-bs-title', list.outerHTML);
-		new Tooltip(this.warningsLink, {
+		this.addDisposable(new Tooltip(this.warningsLink, {
 			title: list.outerHTML,
 			html: true,
 			placement: 'bottom',
-		});
+		}));
 	}
 
 	hideAll() {

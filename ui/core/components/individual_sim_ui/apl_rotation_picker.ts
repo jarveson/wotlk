@@ -230,11 +230,12 @@ function makeListItemWarnings(cmp: Component, itemHeaderElem: HTMLElement, playe
 	const warningsElem = ListPicker.makeActionElem('apl-warnings', 'fa-exclamation-triangle');
 	warningsElem.classList.add('warning', 'link-warning');
 	warningsElem.setAttribute('data-bs-html', 'true');
-	const warningsTooltip = Tooltip.getOrCreateInstance(warningsElem, {
+	const warningsTooltip = new Tooltip(warningsElem, {
 		customClass: 'dropdown-tooltip',
 		title: 'Warnings',
 		html: true,
 	});
+	cmp.addDisposable(warningsTooltip);
 	itemHeaderElem.appendChild(warningsElem);
 
 	const updateWarnings = async () => {
@@ -270,6 +271,7 @@ class HidePicker extends Input<Player<any>, boolean> {
 		this.iconElem = this.inputElem.childNodes[0] as HTMLElement;
 		this.rootElem.appendChild(this.inputElem);
 		this.tooltip = Tooltip.getOrCreateInstance(this.inputElem, { title: 'Enable/Disable' });
+		this.addDisposable(this.tooltip);
 
 		this.init();
 

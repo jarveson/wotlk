@@ -58,10 +58,10 @@ export class IconEnumPicker<ModObject, T> extends Input<ModObject, T> {
 		}
 
 		if (config.tooltip) {
-			Tooltip.getOrCreateInstance(this.rootElem, {
+			this.addDisposable(new Tooltip(this.rootElem, {
 				html: true,
 				title: config.tooltip
-			});
+			}));
 		}
 		this.rootElem.appendChild(
 			<>
@@ -107,10 +107,10 @@ export class IconEnumPicker<ModObject, T> extends Input<ModObject, T> {
 			}
 
 			if (valueConfig.tooltip) {
-				Tooltip.getOrCreateInstance(option, {
+				this.addDisposable(new Tooltip(option, {
 					html: true,
 					title: valueConfig.tooltip
-				});
+				}));
 			}
 
 			if (valueConfig.showWhen) {

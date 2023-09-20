@@ -63,7 +63,8 @@ export class CooldownsPicker extends Component {
 				</a>
 			`
 			const deleteButton = deleteButtonFragment.children[0] as HTMLElement;
-			const deleteButtonTooltip = Tooltip.getOrCreateInstance(deleteButton, {title: 'Delete Cooldown'});
+			const deleteButtonTooltip = new Tooltip(deleteButton, {title: 'Delete Cooldown'});
+			
 			deleteButton.addEventListener('click', event => {
 				const newCooldowns = this.player.getCooldowns();
 				newCooldowns.cooldowns.splice(i, 1);

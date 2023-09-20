@@ -93,15 +93,15 @@ export class DropdownPicker<ModObject, T, V = T> extends Input<ModObject, T, V> 
 				this.config.setOptionContent(buttonElem, valueConfig, false);
 
 				if (valueConfig.tooltip) {
-					Tooltip.getOrCreateInstance(buttonElem, {
+					this.addDisposable(new Tooltip(buttonElem, {
 						animation: false,
 						placement: 'right',
-						fallbackPlacements: ['left', 'bottom'],
+						fallbackPlacement: ['left', 'bottom'],
 						offset: [0, 10],
 						customClass: 'dropdown-tooltip',
 						html: true,
 						title: valueConfig.tooltip
-					});
+					}));
 				}
 
 				buttonElem.addEventListener('click', () => {

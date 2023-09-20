@@ -806,7 +806,7 @@ export class ItemList<T> implements IDisposable {
 	private onItemClick: (itemData: ItemData<T>) => void;
 	private scroller: Clusterize;
 
-	private eDispose: IDisposable | null = null;
+	private toDispose = new Array<IDisposable>();
 
 	constructor(
 		parent: HTMLElement,
@@ -871,9 +871,9 @@ export class ItemList<T> implements IDisposable {
 
 		parent.appendChild(this.tabContent);
 
-		new Tooltip(epButton.value!, {
+		this.toDispose.push(new Tooltip(epButton.value!, {
 			title: EP_TOOLTIP
-		});
+		}));
 
 		const show1hWeaponsSelector = makeShow1hWeaponsSelector(this.tabContent.getElementsByClassName('selector-modal-show-1h-weapons')[0] as HTMLElement, player.sim);
 		const show2hWeaponsSelector = makeShow2hWeaponsSelector(this.tabContent.getElementsByClassName('selector-modal-show-2h-weapons')[0] as HTMLElement, player.sim);
@@ -942,9 +942,9 @@ export class ItemList<T> implements IDisposable {
 		const simAllButton = this.tabContent.getElementsByClassName('selector-modal-simall-button')[0] as HTMLButtonElement;
 		if (label == "Items") {
 			simAllButton.hidden = !player.sim.getShowExperimental()
-			this.eDispose = player.sim.showExperimentalChangeEmitter.on(() => {
+			this.toDispose.push(player.sim.showExperimentalChangeEmitter.on(() => {
 				simAllButton.hidden = !player.sim.getShowExperimental();
-			});
+			}));
 			simAllButton.addEventListener('click', (event) => {
 				if (simUI instanceof IndividualSimUI) {
 					let itemSpecs = Array<ItemSpec>();
@@ -987,7 +987,7 @@ export class ItemList<T> implements IDisposable {
 
 	public dispose() {
 		this.scroller.dispose();
-		this.eDispose?.dispose();
+		this.toDispose.forEach(d => d.dispose());
 	}
 
 	public updateSelected() {
@@ -1189,9 +1189,9 @@ export class ItemList<T> implements IDisposable {
 
 		setItemQualityCssClass(nameElem.value!, itemData.quality);
 
-		new Tooltip(favoriteElem.value!, {
+		this.toDispose.push(new Tooltip(favoriteElem.value!, {
 			title: 'Add to favorites'
-		});
+		}));
 		const setFavorite = (isFavorite: boolean) => {
 			const filters = this.player.sim.getFilters();
 			if (this.label == 'Items') {

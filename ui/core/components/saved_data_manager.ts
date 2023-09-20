@@ -120,7 +120,7 @@ export class SavedDataManager<ModObject, T> extends Component {
 			const deleteButton = deleteFragment.children[0] as HTMLElement;
 			dataElem.appendChild(deleteButton);
 
-			const tooltip = Tooltip.getOrCreateInstance(deleteButton, {title:`Delete saved ${this.config.label}`});
+			const tooltip = new Tooltip(deleteButton, {title:`Delete saved ${this.config.label}`});
 
 			deleteButton.addEventListener('click', event => {
 				event.stopPropagation();
@@ -138,11 +138,11 @@ export class SavedDataManager<ModObject, T> extends Component {
 		}
 
 		if (config.tooltip) {
-			Tooltip.getOrCreateInstance(dataElem, {
+			this.addDisposable(new Tooltip(dataElem, {
 				title: config.tooltip,
 				placement: 'bottom',
 				html: true,
-			});
+			}));
 		}
 
 		const checkActive = () => {

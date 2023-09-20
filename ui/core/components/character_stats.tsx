@@ -152,10 +152,10 @@ export class CharacterStats extends Component {
 					<span>{this.statDisplayString(finalStats, finalStats, stat)}</span>
 				</div>
 			</div>;
-			Tooltip.getOrCreateInstance(valueElem, {
+			this.addDisposable(Tooltip.getOrCreateInstance(valueElem, {
 				title: tooltipContent,
 				html: true,
-			});
+			}));
 		});
 	}
 

@@ -55,10 +55,10 @@ export class ContentBlock extends Component {
 			}
 
 			if (this.config.header.tooltip)
-				Tooltip.getOrCreateInstance(header.querySelector('.content-block-title') as HTMLElement,  {
+				this.addDisposable(new Tooltip(header.querySelector('.content-block-title') as HTMLElement,  {
 					html: true,
 					title: this.config.header.tooltip
-				});
+				}));
 
 			this.rootElem.appendChild(header);
 

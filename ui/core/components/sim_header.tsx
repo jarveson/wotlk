@@ -135,11 +135,11 @@ export class SimHeader extends Component {
 		}
 
 		if (args.tooltip) {
-			new Tooltip(link, {
+			this.addDisposable(new Tooltip(link, {
 				placement: 'bottom',
 				title: args.tooltip,
 				html: true,
-			});
+			}));
 		}
 
 		return args.parent.appendChild(item) as HTMLElement;

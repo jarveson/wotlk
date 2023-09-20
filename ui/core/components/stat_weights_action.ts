@@ -306,12 +306,12 @@ class EpWeightsMenu extends BaseModal {
 		});
 
 		const optimizeGemsButton = this.rootElem.getElementsByClassName('optimize-gems')[0] as HTMLElement;
-		Tooltip.getOrCreateInstance(optimizeGemsButton, {
+		this.addDisposable(new Tooltip(optimizeGemsButton, {
 			html: true,
 			title: `<p><span class='warning link-warning'><i class='fa fa-exclamation-triangle'></i> WARNING</span> This feature is experimental, and will not always produce the most optimal gems especially when interacting with soft/hard stat caps.</p>
 			<p>Optimizes equipped gems to maximize EP, based on the values in <b>Current EP</b>.</p>
 			<p class='mb-0'>Does not change the meta gem, but ensures that its condition is met. Uses JC gems if Jewelcrafting is a selected profession.</p>`
-		});
+		}));
 		optimizeGemsButton.addEventListener('click', async event => {
 			const previousContents = optimizeGemsButton.innerHTML;
 			optimizeGemsButton.classList.add('disabled');
@@ -359,11 +359,11 @@ class EpWeightsMenu extends BaseModal {
 				title: title
 			};
 
-			new Tooltip(label, labelTooltipConfig);
-			Tooltip.getOrCreateInstance(button, {
+			this.addDisposable(new Tooltip(label, labelTooltipConfig));
+			this.addDisposable(new Tooltip(button, {
 				title: tooltip,
 				html: true,
-			});
+			}));
 
 			button.addEventListener('click', event => {
 				this.simUI.player.setEpWeights(TypedEvent.nextEventID(), Stats.fromProto(weightsFunc()));
@@ -419,7 +419,7 @@ class EpWeightsMenu extends BaseModal {
 		weightRatioCells.forEach(makeEpRatioCell);
 
 		const updateButton = this.rootElem.getElementsByClassName('compute-ep')[0] as HTMLElement;
-		Tooltip.getOrCreateInstance(updateButton, {
+		this.addDisposable(new Tooltip(updateButton, {
 			title: "Compute Weighted EP"
 		});
 

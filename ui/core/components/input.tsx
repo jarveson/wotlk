@@ -73,10 +73,10 @@ export abstract class Input<ModObject, T, V = T> extends Component {
 		);
 
 		if (config.labelTooltip)
-			new Tooltip(label, {
+			this.addDisposable(new Tooltip(label, {
 				title: config.labelTooltip,
 				html: true,
-			});
+			}));
 
 		return label;
 	}

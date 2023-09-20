@@ -35,9 +35,9 @@ export class SettingsMenu extends BaseModal {
 		`
 
 		const restoreDefaultsButton = this.rootElem.getElementsByClassName('restore-defaults-button')[0] as HTMLElement;
-		Tooltip.getOrCreateInstance(restoreDefaultsButton, {
+		this.addDisposable(new Tooltip(restoreDefaultsButton, {
 			title: "Restores all default settings (gear, consumes, buffs, talents, EP weights, etc). Saved settings are preserved."
-		});
+		}));
 		restoreDefaultsButton.addEventListener('click', event => {
 			this.simUI.applyDefaults(TypedEvent.nextEventID());
 		});

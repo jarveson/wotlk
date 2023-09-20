@@ -1,0 +1,10 @@
+{
+    "type": "TypeAPL",
+    "prepullActions": [
+        {"action":{"castSpell":{"spellId":{"otherId":"OtherActionPotion"}}},"doAtValue":{"const":{"val":"-1s"}}}
+    ],
+    "priorityList": [
+        {"action":{"autocastOtherCooldowns":{}}},
+        {"action":{"castSpell":{"spellId":{"spellId":42939}}}}
+    ]
+}

@@ -1,9 +1,8 @@
 import { Tooltip } from 'bootstrap';
 import { EventID, TypedEvent } from '../typed_event.js';
 
-import { Component } from './component.js';
-
-import { element, fragment } from 'tsx-vanilla'
+import { JSX, h } from 'preact';
+import { useState, useEffect, useRef } from 'preact/hooks';
 
 /**
  * Data for creating a new input UI element.
@@ -38,6 +37,57 @@ export interface InputConfig<ModObject, T, V = T> {
 	valueToSource?: (val: V) => T,
 }
 
+type ICProps<ModObject, T, V> = {
+	modObject: ModObject,
+	cfg: InputConfig<ModObject, T, V>,
+	cssClass: string,
+	children: JSX.Element,
+	enabled: boolean,
+	shown: boolean,
+}
+
+function useModObject<ModObject>(modObj: ModObject) {
+	const [val, setVal] = useState()
+
+	config.changedEvent(modObj).on(eventID => {
+		this.setInputValue(this.getSourceValue());
+		this.update();
+	})
+}
+
+export function InputPreact<ModObject, T, V>(props: ICProps<ModObject, T, V>) {
+	const labelRef = useRef<HTMLLabelElement>(null);
+
+	if (props.cfg.label && props.cfg.labelTooltip) {
+		useEffect(() => {	
+			const t = new Tooltip(labelRef.current!, {
+				title: props.cfg.labelTooltip,
+				html: true,
+			});
+			return () => t.dispose();
+		}, [props.cfg.labelTooltip]);
+	}
+
+	const setInputValue = () => {
+		props.cfg.setValue
+	}
+
+	useEffect(() => {
+		props.cfg.changedEvent(modObj)
+	})
+
+	return (
+		<div class={`input-root ${props.cfg.inline && 'input-inline'} ${props.cfg.extraCssClasses?.join(' ')} ${!props.enabled && 'disabled'} ${!props.shown && 'hide'}`}>
+			{props.cfg.label &&
+				<label className="form-label" ref={labelRef}>
+					{props.cfg.label}
+				</label>
+			}
+			{props.children}
+		</div>
+	)
+}
+
 // Shared logic for UI elements that are mapped to a value for some modifiable object.
 export abstract class Input<ModObject, T, V = T> extends Component {
 	private readonly inputConfig: InputConfig<ModObject, T, V>;
@@ -57,26 +107,25 @@ export abstract class Input<ModObject, T, V = T> extends Component {
 		if (config.extraCssClasses) this.rootElem.classList.add(...config.extraCssClasses);
 		if (config.label) this.rootElem.appendChild(this.buildLabel(config));
 
-		this.addDisposable(config.changedEvent(this.modObject).on(eventID => {
+		config.changedEvent(this.modObject).on(eventID => {
 			this.setInputValue(this.getSourceValue());
 			this.update();
-		}));
+		});
 	}
 
 	private buildLabel(config: InputConfig<ModObject, T, V>): JSX.Element {
 		let dataset = {};
 
-		let label = (
+		let label = 
 			<label className="form-label">
 				{config.label}
-			</label>
-		);
+			</label>;
 
 		if (config.labelTooltip)
-			this.addDisposable(new Tooltip(label, {
+			new Tooltip(label, {
 				title: config.labelTooltip,
 				html: true,
-			}));
+			});
 
 		return label;
 	}

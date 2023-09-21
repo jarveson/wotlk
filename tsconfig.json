@@ -16,8 +16,7 @@
         "resolveJsonModule": true,
         "esModuleInterop": true,
         "baseUrl": ".",
-        "jsx": "react",
-        "jsxFactory": "element",
-        "jsxFragmentFactory": "fragment"
+        "jsx": "react-jsx",
+        "jsxImportSource": "preact",
     }
 }

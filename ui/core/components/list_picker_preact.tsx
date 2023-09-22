@@ -23,11 +23,6 @@ export type AEProps = {
 
     draggable?:boolean,
     onDragStart?:JSX.DragEventHandler<any>,
-
-    /*onDragEnd?:Function,
-    onDragLeave?:Function,
-    onDragOver?:Function,
-    onDrop?:Function,*/
 }
 
 const ActionElement = (props: AEProps) => {
@@ -74,7 +69,7 @@ function NewListPicker<ItemType>(props: NLPProps<ItemType>) {
     let menuBar = Array<VNode<any>>();
 
     let itemPickerRef = useRef<any>(null);
-    let itemPicker = cloneElement(props.itemPicker, {idx: props.idx, ref: itemPickerRef});
+    let itemPicker = cloneElement(props.itemPicker, {idx: props.idx, ref: itemPickerRef, item: props.item});
     let itemElem = <div class='list-picker-item'>{itemPicker}</div>
     let headerElems = [ 
     (<div class='list-picker-item-header'>
@@ -214,13 +209,12 @@ type LPConfigProps<ItemType> = {
     // If set, only actions included in the list are allowed. Otherwise, all actions are allowed.
 	allowedActions?: Array<ListItemAction>,
     itemPickers: Array<ItemType>
+    itemPicker: VNode<any>
 
     onNewItem: () => void,
     onItemDropped: (srcIdx:number, dstIdx:number) => void;
     onCopyClicked: (srcIdx: number) => void;
     onDeleteClicked: (srcIdx: number) => void;
-
-    itemPicker: VNode<any>
 }
 
 export function ListPickerPreact<ItemType>(props: LPConfigProps<ItemType>) {

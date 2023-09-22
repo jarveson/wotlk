@@ -21,12 +21,13 @@ import { SimUI } from '../../sim_ui.js';
 import { APLActionPicker } from './apl_actions.js';
 import { APLValuePicker, APLValueImplStruct } from './apl_values.js';
 
-import { InputPreact, useBsTooltipPreact, useModObject } from '../inputPreact.js'
+import { ICProps, InputPreact, useBsTooltipPreact, useModObject } from '../inputPreact.js'
 
 import { h, JSX, Fragment, VNode, cloneElement } from 'preact';
 import { useState, useEffect, useRef, Ref, useContext } from 'preact/hooks';
 import { Signal, useSignal } from '@preact/signals';
 import { ActionElement, ListPickerPreact } from '../list_picker_preact.js';
+import { AdaptiveStringPickerPreact } from '../string_picker_preact.js';
 
 
 export type AplRPProps = {
@@ -145,50 +146,43 @@ type AplPpAPProps = {
 	idx: number;
 	ref: Ref<any>;
 	item: APLPrepullAction;
+	modObject: any
 }
 
 const APLPrepullActionPickerPreact = (props: AplPpAPProps) => {
+	let [sval, setSVal] = useState((props.item.doAtValue?.value as APLValueImplStruct<'const'>|undefined)?.const.val || '');
+
+	let icProps: ICProps = {
+		children: [],
+		label: 'Do At',
+		labelTooltip: 'Time before pull to do the action. Should be negative, and formatted like, \'-1s\' or \'-2500ms\'.',
+		cssClasses: ['apl-prepull-actions-doat'],
+		inline:true
+	}
+
+	const onchange = () => {
+		(props.modObject as Player<any>).rotationChangeEmitter.emit(TypedEvent.nextEventID());
+	}
+
+	const oninput = (e: Event) => {
+		setSVal((e.target as HTMLInputElement).value);
+	}
+
 	return (
 		<InputPreact
 			enabled={!props.item.hide}
 			cssClasses={['apl-list-item-picker-root']}
-			
-		/>
+		>
+			<AdaptiveStringPickerPreact
+				icProps={icProps}
+				modObject={props.modObject}
+				value={sval}
+				onchange={onchange}
+				oninput={oninput}
+			/>
+		</InputPreact>
 	);
 
-	private readonly player: Player<any>;
-
-	private readonly hidePicker: Input<Player<any>, boolean>;
-	private readonly doAtPicker: Input<Player<any>, string>;
-	private readonly actionPicker: APLActionPicker;
-
-	private getItem(): APLPrepullAction {
-		return this.getSourceValue() || APLPrepullAction.create({
-			action: {},
-		});
-	}
-
-	constructor(parent: HTMLElement, player: Player<any>, config: ListItemPickerConfig<Player<any>, APLPrepullAction>, index: number) {
-
-
-		this.doAtPicker = new AdaptiveStringPicker(this.rootElem, this.player, {
-			label: 'Do At',
-			labelTooltip: 'Time before pull to do the action. Should be negative, and formatted like, \'-1s\' or \'-2500ms\'.',
-			extraCssClasses: ['apl-prepull-actions-doat'],
-			changedEvent: () => this.player.rotationChangeEmitter,
-			getValue: () => (this.getItem().doAtValue?.value as APLValueImplStruct<'const'>|undefined)?.const.val || '',
-			setValue: (eventID: EventID, player: Player<any>, newValue: string) => {
-				if (newValue) {
-					this.getItem().doAtValue = APLValue.create({
-						value: {oneofKind: 'const', const: { val: newValue }}
-					});
-				} else {
-					this.getItem().doAtValue = undefined;
-				}
-				this.player.rotationChangeEmitter.emit(eventID);
-			},
-			inline: true,
-		});
 
 		this.actionPicker = new APLActionPicker(this.rootElem, this.player, {
 			changedEvent: () => this.player.rotationChangeEmitter,

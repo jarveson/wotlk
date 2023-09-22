@@ -1,6 +1,6 @@
 import { classNames, difficultyNames, professionNames, slotNames } from '../proto_utils/names.js';
 import { BaseModal } from './base_modal';
-import { Component } from './component';
+import { Component, DisposableContainer } from './component';
 import { FiltersMenu } from './filters_menu';
 import { Input, InputConfig } from './input';
 import {
@@ -634,8 +634,7 @@ export class SelectorModal extends BaseModal {
 						}
 					};
 
-					gearData.changeEvent.on(updateGemIcon);
-					this.addOnDisposeCallback(() => gearData.changeEvent.off(updateGemIcon));
+					this.addDisposable(gearData.changeEvent.on(updateGemIcon));
 					updateGemIcon();
 				});
 		});
@@ -722,19 +721,11 @@ export class SelectorModal extends BaseModal {
 		let applyFilter = () => { ilist.applyFilters() }
 		let hideOrShowEPValues = () => { ilist.hideOrShowEPValues() }
 		// Add event handlers
-		gearData.changeEvent.on(invokeUpdate);
-
-		this.player.sim.phaseChangeEmitter.on(applyFilter);
-		this.player.sim.filtersChangeEmitter.on(applyFilter);
-		this.player.sim.showEPValuesChangeEmitter.on(hideOrShowEPValues);
-
-		this.addOnDisposeCallback(() => {
-			gearData.changeEvent.off(invokeUpdate)
-			this.player.sim.phaseChangeEmitter.off(applyFilter);
-			this.player.sim.filtersChangeEmitter.off(applyFilter);
-			this.player.sim.showEPValuesChangeEmitter.off(hideOrShowEPValues);
-			ilist.dispose();
-		});
+		this.addDisposable(gearData.changeEvent.on(invokeUpdate));
+		this.addDisposable(this.player.sim.phaseChangeEmitter.on(applyFilter));
+		this.addDisposable(this.player.sim.filtersChangeEmitter.on(applyFilter));
+		this.addDisposable(this.player.sim.showEPValuesChangeEmitter.on(hideOrShowEPValues));
+		this.addDisposable(ilist);
 
 		tabAnchor.value!.addEventListener('shown.bs.tab', (event) => {
 			ilist.sizeRefresh()
@@ -797,7 +788,7 @@ export function getEmptySlotIconUrl(slot: ItemSlot): string {
 	return emptySlotIcons[slot];
 }
 
-export class ItemList<T> {
+export class ItemList<T> extends DisposableContainer {
 	private listElem: HTMLElement;
 	private readonly player: Player<any>;
 	private label: string;
@@ -826,6 +817,7 @@ export class ItemList<T> {
 		socketColor: GemColor,
 		onRemove: (eventID: EventID) => void,
 		onItemClick: (itemData: ItemData<T>) => void) {
+		super()
 		this.label = label;
 		this.player = player;
 		this.itemData = itemData;
@@ -928,6 +920,7 @@ export class ItemList<T> {
 			rows_in_block: 16,
 			blocks_in_cluster: 2,
 		});
+		this.addDisposable(this.scroller);
 
 		const removeButton = this.tabContent.getElementsByClassName('selector-modal-remove-button')[0] as HTMLButtonElement;
 		removeButton.addEventListener('click', event => {
@@ -948,9 +941,9 @@ export class ItemList<T> {
 		const simAllButton = this.tabContent.getElementsByClassName('selector-modal-simall-button')[0] as HTMLButtonElement;
 		if (label == "Items") {
 			simAllButton.hidden = !player.sim.getShowExperimental()
-			player.sim.showExperimentalChangeEmitter.on(() => {
+			this.addDisposable(player.sim.showExperimentalChangeEmitter.on(() => {
 				simAllButton.hidden = !player.sim.getShowExperimental();
-			});
+			}));
 			simAllButton.addEventListener('click', (event) => {
 				if (simUI instanceof IndividualSimUI) {
 					let itemSpecs = Array<ItemSpec>();
@@ -989,10 +982,6 @@ export class ItemList<T> {
 	public sizeRefresh() {
 		this.scroller.refresh(true);
 		this.applyFilters();
-	}
-
-	public dispose() {
-		this.scroller.dispose();
 	}
 
 	public updateSelected() {

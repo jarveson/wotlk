@@ -24,9 +24,9 @@ import { APLValuePicker, APLValueImplStruct } from './apl_values.js';
 import { InputPreact, useBsTooltipPreact, useModObject } from '../inputPreact.js'
 
 import { h, JSX, Fragment, VNode, cloneElement } from 'preact';
-import { useState, useEffect, useRef, Ref } from 'preact/hooks';
+import { useState, useEffect, useRef, Ref, useContext } from 'preact/hooks';
 import { Signal, useSignal } from '@preact/signals';
-import { ListPickerPreact } from '../list_picker_preact.js';
+import { ActionElement, ListPickerPreact } from '../list_picker_preact.js';
 
 
 export type AplRPProps = {
@@ -45,6 +45,7 @@ export const APLRotationPickerPreact = (props: AplRPProps) => {
                 itemLabel='Prepull Action'
                 itemPickers={prepullActions}
 				inlineMenuBar={true}
+				extraHeaderForItem={(idx, item) => <><ListItemWarning item={item} idx={idx} modObject={props.modPlayer}/><HidePickerElement item={item} modObject={props.modPlayer}/></>}
 				onCopyClicked={(srcIdx) => {
 					const newList = prepullActions.slice();
 					newList.splice(srcIdx, 0, APLPrepullAction.clone(newList[srcIdx]));
@@ -78,6 +79,67 @@ export const APLRotationPickerPreact = (props: AplRPProps) => {
     )
 }
 
+type IWProps = {
+	item: APLPrepullAction
+	modObject: any
+	idx: number,
+}
+
+const ListItemWarning = (props:IWProps) => {
+	const changedEvent = (modObj: Player<any>) => modObj.currentStatsEmitter;
+	const [val, setVal] = useModObject(changedEvent, props.modObject)
+	const [formattedWarnings, setWarnings] = useState(Array<string>());
+
+	const warnings = (props.modObject as Player<any>).getCurrentStats().rotationStats?.prepullActions[props.idx]?.warnings
+	
+	useEffect(() => {
+		warnings && Promise.all(warnings.map(w => ActionId.replaceAllInString(w))).then(v => setWarnings(v));
+	}, [val]);
+
+	
+	if (!formattedWarnings)
+		return (<></>);
+	else
+		return (
+			<ActionElement 
+				cssClasses={['apl-warnings', 'warning', 'link-warning']}
+				iconCssClass='fa-exclamation-triangle'
+				tooltipCssClasses={['dropdown-tooltip']}
+				tooltip={`
+						<p>This action has warnings, and might not behave as expected.</p>
+						<ul>
+							${formattedWarnings.map(w => `<li>${w}</li>`).join('')}
+						</ul>`}
+				html={true}
+				/>
+		);
+}
+type HPEProps = {
+	item: APLPrepullAction
+	modObject: any
+}
+
+const HidePickerElement = (props: HPEProps) => {
+	let hide = useSignal(props.item.hide)
+	let onclick = () => {
+		props.item.hide = !props.item.hide;
+		hide.value = props.item.hide;
+		(props.modObject as Player<any>).rotationChangeEmitter.emit(TypedEvent.nextEventID())
+	}
+	return (
+		<InputPreact
+			cssClasses={['hide-picker-root']}
+		>
+			<ActionElement
+				cssClasses={['hide-picker-button']}
+				iconCssClass={hide.value ? 'fa-eye-slash' : 'fa-eye'}
+				onClick={onclick}
+				tooltip={hide.value ? 'Enable Action' : 'Disable Action' }
+			/>
+		</InputPreact>
+	)
+}
+
 type AplPpAPProps = {
 	prepullActions: APLPrepullAction[];
 	idx: number;
@@ -89,6 +151,8 @@ const APLPrepullActionPickerPreact = (props: AplPpAPProps) => {
 	return (
 		<InputPreact
 			enabled={!props.item.hide}
+			cssClasses={['apl-list-item-picker-root']}
+			
 		/>
 	);
 
@@ -105,21 +169,7 @@ const APLPrepullActionPickerPreact = (props: AplPpAPProps) => {
 	}
 
 	constructor(parent: HTMLElement, player: Player<any>, config: ListItemPickerConfig<Player<any>, APLPrepullAction>, index: number) {
-		config.enableWhen = () => !this.getItem().hide;
-		super(parent, 'apl-list-item-picker-root', player, config);
-		this.player = player;
 
-		const itemHeaderElem = ListPicker.getItemHeaderElem(this);
-		makeListItemWarnings(this, itemHeaderElem, player, player => player.getCurrentStats().rotationStats?.prepullActions[index]?.warnings || []);
-
-		this.hidePicker = new HidePicker(itemHeaderElem, player, {
-			changedEvent: () => this.player.rotationChangeEmitter,
-			getValue: () => this.getItem().hide,
-			setValue: (eventID: EventID, player: Player<any>, newValue: boolean) => {
-				this.getItem().hide = newValue;
-				this.player.rotationChangeEmitter.emit(eventID);
-			},
-		});
 
 		this.doAtPicker = new AdaptiveStringPicker(this.rootElem, this.player, {
 			label: 'Do At',

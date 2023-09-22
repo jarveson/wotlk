@@ -18,16 +18,18 @@ export type AEProps = {
     cssClasses: Array<string>, 
     iconCssClass: string,
     tooltip: string,
+    tooltipCssClasses?: Array<string>,
     hide?: Signal,
+    html?:boolean,
     onClick?:JSX.MouseEventHandler<any>,
 
     draggable?:boolean,
     onDragStart?:JSX.DragEventHandler<any>,
 }
 
-const ActionElement = (props: AEProps) => {
+export const ActionElement = (props: AEProps) => {
     const aref = useRef<HTMLAnchorElement>(null);
-    useBsTooltipPreact({el:aref.current!, tooltip: props.tooltip, hide: props.hide});
+    useBsTooltipPreact({el:aref.current!, tooltip: props.tooltip, hide: props.hide, html:props.html});
 
     return (
         <a
@@ -54,6 +56,7 @@ type NLPProps<ItemType> = {
     itemLabel?: string,
     itemPicker: VNode<any>
     allowedActions?: Array<ListItemAction>,
+    extraHeaderElem: VNode<any>,
 }
 
 const actionEnabled = (action: ListItemAction, allowedActions?: Array<ListItemAction>): boolean => {
@@ -76,6 +79,7 @@ function NewListPicker<ItemType>(props: NLPProps<ItemType>) {
         {!props.inlineMenuBar && props.itemLabel &&
             <h6 class='list-picker-item-title'>{`${props.itemLabel} ${props.idx}`}</h6>
         }
+        {props.extraHeaderElem}
     </div>)];
 
     let ondragenter = undefined;
@@ -215,6 +219,7 @@ type LPConfigProps<ItemType> = {
     onItemDropped: (srcIdx:number, dstIdx:number) => void;
     onCopyClicked: (srcIdx: number) => void;
     onDeleteClicked: (srcIdx: number) => void;
+    extraHeaderForItem: (srcIdx: number, item: ItemType) => VNode<any>;
 }
 
 export function ListPickerPreact<ItemType>(props: LPConfigProps<ItemType>) {
@@ -275,6 +280,7 @@ export function ListPickerPreact<ItemType>(props: LPConfigProps<ItemType>) {
                     <NewListPicker 
                         item={ip}
                         idx={idx}
+                        extraHeaderElem={props.extraHeaderForItem(idx, ip)}
                         onCopyClicked={props.onCopyClicked}
                         onDeleteClicked={props.onDeleteClicked}
                         onItemDropped={props.onItemDropped}

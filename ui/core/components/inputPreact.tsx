@@ -26,12 +26,14 @@ export type BsTTProps = {
     tooltip: string,
     html?: boolean,
     hide?: Signal,
+	cssClasses?: Array<string>,
 }
 
 export const useBsTooltipPreact = (props: BsTTProps) => {
     let t : Tooltip | null = null;
     useEffect(() => {	
         t = new Tooltip(props.el, {
+			customClass: props.cssClasses ? props.cssClasses.join(' ') : undefined,
             title: props.tooltip,
             html: props.html,
         });

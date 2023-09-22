@@ -1,8 +1,10 @@
 import { Tooltip } from 'bootstrap';
 import { EventID, TypedEvent } from '../typed_event.js';
 
-import { JSX, h } from 'preact';
-import { useState, useEffect, useRef } from 'preact/hooks';
+import { Component } from './component.js';
+
+import { element, fragment } from 'tsx-vanilla';
+var h = element;
 
 /**
  * Data for creating a new input UI element.
@@ -35,57 +37,6 @@ export interface InputConfig<ModObject, T, V = T> {
 	// because source and input use the same type. These functions must be set if T != V.
 	sourceToValue?: (src: T) => V,
 	valueToSource?: (val: V) => T,
-}
-
-type ICProps<ModObject, T, V> = {
-	modObject: ModObject,
-	cfg: InputConfig<ModObject, T, V>,
-	cssClass: string,
-	children: JSX.Element,
-	enabled: boolean,
-	shown: boolean,
-}
-
-function useModObject<ModObject>(modObj: ModObject) {
-	const [val, setVal] = useState()
-
-	config.changedEvent(modObj).on(eventID => {
-		this.setInputValue(this.getSourceValue());
-		this.update();
-	})
-}
-
-export function InputPreact<ModObject, T, V>(props: ICProps<ModObject, T, V>) {
-	const labelRef = useRef<HTMLLabelElement>(null);
-
-	if (props.cfg.label && props.cfg.labelTooltip) {
-		useEffect(() => {	
-			const t = new Tooltip(labelRef.current!, {
-				title: props.cfg.labelTooltip,
-				html: true,
-			});
-			return () => t.dispose();
-		}, [props.cfg.labelTooltip]);
-	}
-
-	const setInputValue = () => {
-		props.cfg.setValue
-	}
-
-	useEffect(() => {
-		props.cfg.changedEvent(modObj)
-	})
-
-	return (
-		<div class={`input-root ${props.cfg.inline && 'input-inline'} ${props.cfg.extraCssClasses?.join(' ')} ${!props.enabled && 'disabled'} ${!props.shown && 'hide'}`}>
-			{props.cfg.label &&
-				<label className="form-label" ref={labelRef}>
-					{props.cfg.label}
-				</label>
-			}
-			{props.children}
-		</div>
-	)
 }
 
 // Shared logic for UI elements that are mapped to a value for some modifiable object.

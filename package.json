@@ -25,6 +25,7 @@
     },
     "dependencies": {
         "@popperjs/core": "^2.11.6",
+        "@preact/signals": "^1.2.1",
         "bootstrap": "5.2.3",
         "preact": "^10.17.1",
         "tippy.js": "^6.3.7",

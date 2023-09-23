@@ -17,7 +17,7 @@
         "esModuleInterop": true,
         "baseUrl": ".",
         "jsx": "react",
-        "jsxFactory": "h",
-        "jsxFragmentFactory": "Fragment",
+        "jsxFactory": "element",
+        "jsxFragmentFactory": "fragment"
     }
 }

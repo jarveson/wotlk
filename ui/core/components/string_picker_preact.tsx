@@ -1,6 +1,8 @@
+/** @jsx h */
+/** @jsxFrag Fragment */
 import { TypedEvent } from '../typed_event.js';
 import { InputPreact, useModObject } from './inputPreact.js'
-import { h } from 'preact';
+import { h, Fragment } from 'preact';
 import { useState, useEffect, useRef, Ref, useContext } from 'preact/hooks';
 import { ICProps } from './inputPreact.js';
 import { Player } from '../player.js';

@@ -421,7 +421,7 @@ class EpWeightsMenu extends BaseModal {
 		const updateButton = this.rootElem.getElementsByClassName('compute-ep')[0] as HTMLElement;
 		this.addDisposable(new Tooltip(updateButton, {
 			title: "Compute Weighted EP"
-		});
+		}));
 
 		updateButton.addEventListener('click', event => {
 			const results = this.getPrevSimResult();

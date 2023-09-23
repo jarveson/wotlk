@@ -1,3 +1,5 @@
+/** @jsx h */
+/** @jsxFrag Fragment */
 import { InputPreact, useBsTooltipPreact } from './inputPreact.js'
 
 import { h, JSX, Fragment, VNode, cloneElement } from 'preact';
@@ -29,7 +31,7 @@ export type AEProps = {
 
 export const ActionElement = (props: AEProps) => {
     const aref = useRef<HTMLAnchorElement>(null);
-    useBsTooltipPreact({el:aref.current!, tooltip: props.tooltip, hide: props.hide, html:props.html});
+    useBsTooltipPreact({el:aref, tooltip: props.tooltip, hide: props.hide, html:props.html});
 
     return (
         <a

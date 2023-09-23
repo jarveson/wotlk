@@ -1,3 +1,5 @@
+/** @jsx h */
+/** @jsxFrag Fragment */
 import { Tooltip } from 'bootstrap';
 
 import { EventID, TypedEvent } from '../../typed_event.js';
@@ -29,7 +31,6 @@ import { Signal, useSignal } from '@preact/signals';
 import { ActionElement, ListPickerPreact } from '../list_picker_preact.js';
 import { AdaptiveStringPickerPreact } from '../string_picker_preact.js';
 
-
 export type AplRPProps = {
     modPlayer: Player<any>
 }
@@ -47,6 +48,7 @@ export const APLRotationPickerPreact = (props: AplRPProps) => {
                 itemPickers={prepullActions}
 				inlineMenuBar={true}
 				extraHeaderForItem={(idx, item) => <><ListItemWarning item={item} idx={idx} modObject={props.modPlayer}/><HidePickerElement item={item} modObject={props.modPlayer}/></>}
+				itemPicker={<APLPrepullActionPickerPreact prepullActions={prepullActions} modObject={props.modPlayer} />}
 				onCopyClicked={(srcIdx) => {
 					const newList = prepullActions.slice();
 					newList.splice(srcIdx, 0, APLPrepullAction.clone(newList[srcIdx]));
@@ -143,13 +145,16 @@ const HidePickerElement = (props: HPEProps) => {
 
 type AplPpAPProps = {
 	prepullActions: APLPrepullAction[];
-	idx: number;
-	ref: Ref<any>;
-	item: APLPrepullAction;
+	idx?: number;
+	ref?: Ref<any>;
+	item?: APLPrepullAction;
 	modObject: any
 }
 
 const APLPrepullActionPickerPreact = (props: AplPpAPProps) => {
+	if (!props.ref || !props.item || !props.idx)
+		return (<></>)
+
 	let [sval, setSVal] = useState((props.item.doAtValue?.value as APLValueImplStruct<'const'>|undefined)?.const.val || '');
 
 	let icProps: ICProps = {
@@ -184,40 +189,15 @@ const APLPrepullActionPickerPreact = (props: AplPpAPProps) => {
 	);
 
 
-		this.actionPicker = new APLActionPicker(this.rootElem, this.player, {
-			changedEvent: () => this.player.rotationChangeEmitter,
-			getValue: () => this.getItem().action!,
-			setValue: (eventID: EventID, player: Player<any>, newValue: APLAction) => {
-				this.getItem().action = newValue;
-				this.player.rotationChangeEmitter.emit(eventID);
-			},
-		});
-		this.init();
-	}
-
-	getInputElem(): HTMLElement | null {
-		return this.rootElem;
-	}
-
-	getInputValue(): APLPrepullAction {
-		const item = APLPrepullAction.create({
-			hide: this.hidePicker.getInputValue(),
-			doAtValue: {
-				value: {oneofKind: 'const', const: { val: this.doAtPicker.getInputValue() }},
-			},
-			action: this.actionPicker.getInputValue(),
-		});
-		return item;
-	}
-
-	setInputValue(newValue: APLPrepullAction) {
-		if (!newValue) {
-			return;
-		}
-		this.hidePicker.setInputValue(newValue.hide);
-		this.doAtPicker.setInputValue((newValue.doAtValue?.value as APLValueImplStruct<'const'>|undefined)?.const.val || '');
-		this.actionPicker.setInputValue(newValue.action || APLAction.create());
-	}
+	/*this.actionPicker = new APLActionPicker(this.rootElem, this.player, {
+		changedEvent: () => this.player.rotationChangeEmitter,
+		getValue: () => this.getItem().action!,
+		setValue: (eventID: EventID, player: Player<any>, newValue: APLAction) => {
+			this.getItem().action = newValue;
+			this.player.rotationChangeEmitter.emit(eventID);
+		},
+	});
+	this.init();*/
 }
 
 export class APLRotationPicker extends Component {

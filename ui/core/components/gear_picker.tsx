@@ -15,7 +15,7 @@ import { setItemQualityCssClass } from '../css_utils';
 import { Player } from '../player';
 import { Sim } from '../sim.js';
 import { SimUI } from '../sim_ui';
-import { Disposable, EventID, TypedEvent } from '../typed_event';
+import { EventID, TypedEvent } from '../typed_event';
 import { formatDeltaTextElem } from '../utils';
 
 import { ActionId } from '../proto_utils/action_id';

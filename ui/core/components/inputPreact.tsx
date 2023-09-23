@@ -1,6 +1,8 @@
+/** @jsx h */
+/** @jsxFrag Fragment */
 import { Tooltip } from 'bootstrap';
 import { h, ComponentChildren } from 'preact';
-import { useState, useEffect, useRef } from 'preact/hooks';
+import { useState, useEffect, useRef, Ref } from 'preact/hooks';
 import { TypedEvent } from '../typed_event.js';
 import { Signal, useSignal } from "@preact/signals";
 
@@ -22,7 +24,7 @@ const DEFAULT_CONFIG = {
 }
 
 export type BsTTProps = {
-    el: HTMLElement,
+    el: Ref<HTMLElement>,
     tooltip: string,
     html?: boolean,
     hide?: Signal,
@@ -32,10 +34,10 @@ export type BsTTProps = {
 export const useBsTooltipPreact = (props: BsTTProps) => {
     let t : Tooltip | null = null;
     useEffect(() => {	
-        t = new Tooltip(props.el, {
-			customClass: props.cssClasses ? props.cssClasses.join(' ') : undefined,
+        t = new Tooltip(props.el.current!, {
+			customClass: props.cssClasses ? props.cssClasses.join(' ') : '',
             title: props.tooltip,
-            html: props.html,
+            html: props.html ? props.html : false,
         });
         return () => t && t.dispose();
     }, [props.tooltip]);
@@ -64,7 +66,7 @@ export const InputPreact = (props: ICProps) => {
     props = {...DEFAULT_CONFIG, ...props};
 
 	if (props.label && props.labelTooltip) {
-        useBsTooltipPreact({el:labelRef.current!, tooltip: props.labelTooltip, html: true});
+        useBsTooltipPreact({el:labelRef, tooltip: props.labelTooltip, html: true});
 	}
 
 	return (

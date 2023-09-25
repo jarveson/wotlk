@@ -874,6 +874,90 @@ dps_results: {
  }
 }
 dps_results: {
+ key: "TestBlood-Settings-Human-Blood P1 -Basic-blood_pesti-FullBuffs-LongMultiTarget"
+ value: {
+  dps: 17548.43198
+  tps: 9459.47207
+ }
+}
+dps_results: {
+ key: "TestBlood-Settings-Human-Blood P1 -Basic-blood_pesti-FullBuffs-LongSingleTarget"
+ value: {
+  dps: 6914.01617
+  tps: 3611.31273
+ }
+}
+dps_results: {
+ key: "TestBlood-Settings-Human-Blood P1 -Basic-blood_pesti-FullBuffs-ShortSingleTarget"
+ value: {
+  dps: 9450.96107
+  tps: 4169.68025
+ }
+}
+dps_results: {
+ key: "TestBlood-Settings-Human-Blood P1 -Basic-blood_pesti-NoBuffs-LongMultiTarget"
+ value: {
+  dps: 9591.94767
+  tps: 5210.82723
+ }
+}
+dps_results: {
+ key: "TestBlood-Settings-Human-Blood P1 -Basic-blood_pesti-NoBuffs-LongSingleTarget"
+ value: {
+  dps: 3902.65995
+  tps: 2051.65557
+ }
+}
+dps_results: {
+ key: "TestBlood-Settings-Human-Blood P1 -Basic-blood_pesti-NoBuffs-ShortSingleTarget"
+ value: {
+  dps: 5075.91195
+  tps: 2248.81271
+ }
+}
+dps_results: {
+ key: "TestBlood-Settings-Human-Blood P1 -Basic-blood_pesti_dd-FullBuffs-LongMultiTarget"
+ value: {
+  dps: 16837.50814
+  tps: 9453.67478
+ }
+}
+dps_results: {
+ key: "TestBlood-Settings-Human-Blood P1 -Basic-blood_pesti_dd-FullBuffs-LongSingleTarget"
+ value: {
+  dps: 6883.7068
+  tps: 3592.81826
+ }
+}
+dps_results: {
+ key: "TestBlood-Settings-Human-Blood P1 -Basic-blood_pesti_dd-FullBuffs-ShortSingleTarget"
+ value: {
+  dps: 9362.12122
+  tps: 4109.54723
+ }
+}
+dps_results: {
+ key: "TestBlood-Settings-Human-Blood P1 -Basic-blood_pesti_dd-NoBuffs-LongMultiTarget"
+ value: {
+  dps: 8959.67971
+  tps: 4998.96852
+ }
+}
+dps_results: {
+ key: "TestBlood-Settings-Human-Blood P1 -Basic-blood_pesti_dd-NoBuffs-LongSingleTarget"
+ value: {
+  dps: 3873.94064
+  tps: 2035.17078
+ }
+}
+dps_results: {
+ key: "TestBlood-Settings-Human-Blood P1 -Basic-blood_pesti_dd-NoBuffs-ShortSingleTarget"
+ value: {
+  dps: 4953.66006
+  tps: 2170.28907
+ }
+}
+dps_results: {
  key: "TestBlood-Settings-Orc-Blood P1 -Basic--FullBuffs-LongMultiTarget"
  value: {
   dps: 20335.22812
@@ -913,6 +997,90 @@ dps_results: {
  value: {
   dps: 5070.65498
   tps: 2183.78113
+ }
+}
+dps_results: {
+ key: "TestBlood-Settings-Orc-Blood P1 -Basic-blood_pesti-FullBuffs-LongMultiTarget"
+ value: {
+  dps: 17769.85194
+  tps: 9511.26125
+ }
+}
+dps_results: {
+ key: "TestBlood-Settings-Orc-Blood P1 -Basic-blood_pesti-FullBuffs-LongSingleTarget"
+ value: {
+  dps: 6994.79678
+  tps: 3630.5538
+ }
+}
+dps_results: {
+ key: "TestBlood-Settings-Orc-Blood P1 -Basic-blood_pesti-FullBuffs-ShortSingleTarget"
+ value: {
+  dps: 9637.27938
+  tps: 4205.77881
+ }
+}
+dps_results: {
+ key: "TestBlood-Settings-Orc-Blood P1 -Basic-blood_pesti-NoBuffs-LongMultiTarget"
+ value: {
+  dps: 9694.482
+  tps: 5229.23075
+ }
+}
+dps_results: {
+ key: "TestBlood-Settings-Orc-Blood P1 -Basic-blood_pesti-NoBuffs-LongSingleTarget"
+ value: {
+  dps: 3938.66954
+  tps: 2058.11359
+ }
+}
+dps_results: {
+ key: "TestBlood-Settings-Orc-Blood P1 -Basic-blood_pesti-NoBuffs-ShortSingleTarget"
+ value: {
+  dps: 5176.51888
+  tps: 2271.56636
+ }
+}
+dps_results: {
+ key: "TestBlood-Settings-Orc-Blood P1 -Basic-blood_pesti_dd-FullBuffs-LongMultiTarget"
+ value: {
+  dps: 17017.49688
+  tps: 9520.78996
+ }
+}
+dps_results: {
+ key: "TestBlood-Settings-Orc-Blood P1 -Basic-blood_pesti_dd-FullBuffs-LongSingleTarget"
+ value: {
+  dps: 6967.86856
+  tps: 3610.2615
+ }
+}
+dps_results: {
+ key: "TestBlood-Settings-Orc-Blood P1 -Basic-blood_pesti_dd-FullBuffs-ShortSingleTarget"
+ value: {
+  dps: 9561.95979
+  tps: 4153.67983
+ }
+}
+dps_results: {
+ key: "TestBlood-Settings-Orc-Blood P1 -Basic-blood_pesti_dd-NoBuffs-LongMultiTarget"
+ value: {
+  dps: 9069.64495
+  tps: 5040.975
+ }
+}
+dps_results: {
+ key: "TestBlood-Settings-Orc-Blood P1 -Basic-blood_pesti_dd-NoBuffs-LongSingleTarget"
+ value: {
+  dps: 3919.85105
+  tps: 2045.9799
+ }
+}
+dps_results: {
+ key: "TestBlood-Settings-Orc-Blood P1 -Basic-blood_pesti_dd-NoBuffs-ShortSingleTarget"
+ value: {
+  dps: 5063.35224
+  tps: 2198.08862
  }
 }
 dps_results: {

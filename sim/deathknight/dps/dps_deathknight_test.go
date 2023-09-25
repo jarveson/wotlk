@@ -1,6 +1,8 @@
 package dps
 
 import (
+	"log"
+	"os"
 	"testing"
 
 	_ "github.com/wowsims/wotlk/sim/common" // imported to get item effects included.
@@ -10,6 +12,16 @@ import (
 
 func init() {
 	RegisterDpsDeathknight()
+}
+
+func GetAplRotation(dir string, file string) core.RotationCombo {
+	filePath := dir + "/" + file + ".json"
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		log.Fatalf("failed to load apl json file: %s, %s", filePath, err)
+	}
+
+	return core.RotationCombo{Label: file, Rotation: core.APLRotationFromJsonString(string(data))}
 }
 
 func TestBlood(t *testing.T) {
@@ -23,16 +35,12 @@ func TestBlood(t *testing.T) {
 		Glyphs:      BloodDefaultGlyphs,
 		Consumes:    FullConsumes,
 		SpecOptions: core.SpecOptionsCombo{Label: "Basic", SpecOptions: PlayerOptionsBlood},
-
-		ItemFilter: core.ItemFilter{
-			ArmorType: proto.ArmorType_ArmorTypePlate,
-
-			WeaponTypes: []proto.WeaponType{
-				proto.WeaponType_WeaponTypeAxe,
-				proto.WeaponType_WeaponTypeSword,
-				proto.WeaponType_WeaponTypeMace,
-			},
+		OtherRotations: []core.RotationCombo{
+			GetAplRotation("../../../ui/deathknight/apls", "blood_pesti"),
+			GetAplRotation("../../../ui/deathknight/apls", "blood_pesti_dd"),
 		},
+
+		ItemFilter: ItemFilter,
 	}))
 }
 
@@ -51,15 +59,13 @@ func TestUnholy(t *testing.T) {
 		Consumes:    FullConsumes,
 		SpecOptions: core.SpecOptionsCombo{Label: "Basic", SpecOptions: PlayerOptionsUnholy},
 
-		ItemFilter: core.ItemFilter{
-			ArmorType: proto.ArmorType_ArmorTypePlate,
-
-			WeaponTypes: []proto.WeaponType{
-				proto.WeaponType_WeaponTypeAxe,
-				proto.WeaponType_WeaponTypeSword,
-				proto.WeaponType_WeaponTypeMace,
-			},
+		OtherRotations: []core.RotationCombo{
+			GetAplRotation("../../../ui/deathknight/apls", "uh_2h_ss"),
+			GetAplRotation("../../../ui/deathknight/apls", "uh_dnd_aoe"),
+			GetAplRotation("../../../ui/deathknight/apls", "unholy_dw_ss"),
 		},
+
+		ItemFilter: ItemFilter,
 	}))
 }
 
@@ -81,15 +87,12 @@ func TestFrost(t *testing.T) {
 			{Label: "Desync", SpecOptions: PlayerOptionsDesyncFrost},
 		},
 
-		ItemFilter: core.ItemFilter{
-			ArmorType: proto.ArmorType_ArmorTypePlate,
-
-			WeaponTypes: []proto.WeaponType{
-				proto.WeaponType_WeaponTypeAxe,
-				proto.WeaponType_WeaponTypeSword,
-				proto.WeaponType_WeaponTypeMace,
-			},
+		OtherRotations: []core.RotationCombo{
+			GetAplRotation("../../../ui/deathknight/apls", "frost_bl_pesti"),
+			GetAplRotation("../../../ui/deathknight/apls", "frost_uh_pesti"),
 		},
+
+		ItemFilter: ItemFilter,
 	}))
 }
 
@@ -107,16 +110,11 @@ func TestFrostUH(t *testing.T) {
 		Glyphs:      FrostUHDefaultGlyphs,
 		Consumes:    FullConsumes,
 		SpecOptions: core.SpecOptionsCombo{Label: "Basic", SpecOptions: PlayerOptionsFrost},
-
-		ItemFilter: core.ItemFilter{
-			ArmorType: proto.ArmorType_ArmorTypePlate,
-
-			WeaponTypes: []proto.WeaponType{
-				proto.WeaponType_WeaponTypeAxe,
-				proto.WeaponType_WeaponTypeSword,
-				proto.WeaponType_WeaponTypeMace,
-			},
+		OtherRotations: []core.RotationCombo{
+			GetAplRotation("../../../ui/deathknight/apls", "frost_uh_pesti"),
 		},
+
+		ItemFilter: ItemFilter,
 	}))
 }
 
@@ -230,503 +228,111 @@ var FullConsumes = &proto.Consumes{
 	Food:          proto.Food_FoodDragonfinFilet,
 }
 
-var BloodP1Gear = core.EquipmentSpecFromJsonString(`{"items": [
-	{
-		"id": 44006,
-		"enchant": 3817,
-		"gems": [
-		  41398,
-		  42702
-		]
-	  },
-	  {
-		"id": 44664,
-		"gems": [
-		  39996
-		]
-	  },
-	  {
-		"id": 40557,
-		"enchant": 3808,
-		"gems": [
-		  39996
-		]
-	  },
-	  {
-		"id": 40403,
-		"enchant": 3831
-	  },
-	  {
-		"id": 40550,
-		"enchant": 3832,
-		"gems": [
-		  42142,
-		  42142
-		]
-	  },
-	  {
-		"id": 40330,
-		"enchant": 3845,
-		"gems": [
-		  42142,
-		  0
-		]
-	  },
-	  {
-		"id": 40552,
-		"enchant": 3604,
-		"gems": [
-		  39996,
-		  0
-		]
-	  },
-	  {
-		"id": 40317,
-		"gems": [
-		  39996
-		]
-	  },
-	  {
-		"id": 40556,
-		"enchant": 3823,
-		"gems": [
-		  39996,
-		  39996
-		]
-	  },
-	  {
-		"id": 40591,
-		"enchant": 3606
-	  },
-	  {
-		"id": 40075
-	  },
-	  {
-		"id": 39401
-	  },
-	  {
-		"id": 40256
-	  },
-	  {
-		"id": 42987
-	  },
-	  {
-		"id": 40384,
-		"enchant": 3368
-	  },
-	  {},
-	  {
-		"id": 40207
-	  }
+var ItemFilter = core.ItemFilter{
+	ArmorType: proto.ArmorType_ArmorTypePlate,
+
+	WeaponTypes: []proto.WeaponType{
+		proto.WeaponType_WeaponTypeAxe,
+		proto.WeaponType_WeaponTypeSword,
+		proto.WeaponType_WeaponTypeMace,
+	},
+}
+
+var BloodP1Gear = core.EquipmentSpecFromJsonString(`{"items":[
+	{"id":44006,"enchant":3817,"gems":[41398,42702]},
+	{"id":44664,"gems":[39996]},
+	{"id":40557,"enchant":3808,"gems":[39996]},
+	{"id":40403,"enchant":3831},
+	{"id":40550,"enchant":3832,"gems":[42142,42142]},
+	{"id":40330,"enchant":3845,"gems":[42142,0]},
+	{"id":40552,"enchant":3604,"gems":[39996,0]},
+	{"id":40317,"gems":[39996]},
+	{"id":40556,"enchant":3823,"gems":[39996,39996]},
+	{"id":40591,"enchant":3606},
+	{"id":40075},
+	{"id":39401},
+	{"id":40256},
+	{"id":42987},
+	{"id":40384,"enchant":3368},
+	{},
+	{"id":40207}
 ]}`)
 
-var UnholyDwP1Gear = core.EquipmentSpecFromJsonString(`{"items": [
-	{
-		"id": 44006,
-		"enchant": 3817,
-		"gems": [
-			41398,
-			42702
-		]
-	},
-	{
-		"id": 39421
-	},
-	{
-		"id": 40557,
-		"enchant": 3808,
-		"gems": [
-			39996
-		]
-	},
-	{
-		"id": 40403,
-		"enchant": 3831
-	},
-	{
-		"id": 40550,
-		"enchant": 3832,
-		"gems": [
-			42142,
-			39996
-		]
-	},
-	{
-		"id": 40330,
-		"enchant": 3845,
-		"gems": [
-			39996,
-			0
-		]
-	},
-	{
-		"id": 40347,
-		"enchant": 3604,
-		"gems": [
-			39996,
-			0
-		]
-	},
-	{
-		"id": 40278,
-		"gems": [
-			42142,
-			42142
-		]
-	},
-	{
-		"id": 40294,
-		"enchant": 3823
-	},
-	{
-		"id": 39706,
-		"enchant": 3606,
-		"gems": [
-			39996
-		]
-	},
-	{
-		"id": 39401
-	},
-	{
-		"id": 40075
-	},
-	{
-		"id": 37390
-	},
-	{
-		"id": 42987
-	},
-	{
-		"id": 40402,
-		"enchant": 3368
-	},
-	{
-		"id": 40491,
-		"enchant": 3368
-	},
-	{
-		"id": 42620
-	}
+var UnholyDwP1Gear = core.EquipmentSpecFromJsonString(`{"items":[
+	{"id":44006,"enchant":3817,"gems":[41398,42702]},
+	{"id":39421},
+	{"id":40557,"enchant":3808,"gems":[39996]},
+	{"id":40403,"enchant":3831},
+	{"id":40550,"enchant":3832,"gems":[42142,39996]},
+	{"id":40330,"enchant":3845,"gems":[39996,0]},
+	{"id":40347,"enchant":3604,"gems":[39996,0]},
+	{"id":40278,"gems":[42142,42142]},
+	{"id":40294,"enchant":3823},
+	{"id":39706,"enchant":3606,"gems":[39996]},
+	{"id":39401},
+	{"id":40075},
+	{"id":37390},
+	{"id":42987},
+	{"id":40402,"enchant":3368},
+	{"id":40491,"enchant":3368},
+	{"id":42620}
 ]}`)
 
-var UnholyDwP2Gear = core.EquipmentSpecFromJsonString(`{"items": [
-	{
-	  "id": 45472,
-	  "enchant": 3817,
-	  "gems": [
-		41398,
-		40041
-	  ]
-	},
-	{
-	  "id": 46040,
-	  "gems": [
-		39996
-	  ]
-	},
-	{
-	  "id": 46117,
-	  "enchant": 3808,
-	  "gems": [
-		39996
-	  ]
-	},
-	{
-	  "id": 45588,
-	  "enchant": 3831,
-	  "gems": [
-		39996
-	  ]
-	},
-	{
-	  "id": 46111,
-	  "enchant": 3832,
-	  "gems": [
-		42142,
-		42142
-	  ]
-	},
-	{
-	  "id": 45663,
-	  "enchant": 3845,
-	  "gems": [
-		39996,
-		0
-	  ]
-	},
-	{
-	  "id": 45481,
-	  "enchant": 3604,
-	  "gems": [
-		0
-	  ]
-	},
-	{
-	  "id": 45241,
-	  "gems": [
-		42142,
-		45862,
-		39996
-	  ]
-	},
-	{
-	  "id": 45134,
-	  "enchant": 3823,
-	  "gems": [
-		40041,
-		39996,
-		40022
-	  ]
-	},
-	{
-	  "id": 45599,
-	  "enchant": 3606,
-	  "gems": [
-		39996,
-		39996
-	  ]
-	},
-	{
-	  "id": 45534,
-	  "gems": [
-		39996
-	  ]
-	},
-	{
-	  "id": 45250
-	},
-	{
-	  "id": 45609
-	},
-	{
-	  "id": 42987
-	},
-	{
-	  "id": 46097,
-	  "enchant": 3368,
-	  "gems": [
-		39996
-	  ]
-	},
-	{
-	  "id": 46036,
-	  "enchant": 3368,
-	  "gems": [
-		39996
-	  ]
-	},
-	{
-	  "id": 45254
-	}
+var UnholyDwP2Gear = core.EquipmentSpecFromJsonString(`{"items":[
+	{"id":45472,"enchant":3817,"gems":[41398,40041]},
+	{"id":46040,"gems":[39996]},
+	{"id":46117,"enchant":3808,"gems":[39996]},
+	{"id":45588,"enchant":3831,"gems":[39996]},
+	{"id":46111,"enchant":3832,"gems":[42142,42142]},
+	{"id":45663,"enchant":3845,"gems":[39996,0]},
+	{"id":45481,"enchant":3604,"gems":[0]},
+	{"id":45241,"gems":[42142,45862,39996]},
+	{"id":45134,"enchant":3823,"gems":[40041,39996,40022]},
+	{"id":45599,"enchant":3606,"gems":[39996,39996]},
+	{"id":45534,"gems":[39996]},
+	{"id":45250},
+	{"id":45609},
+	{"id":42987},
+	{"id":46097,"enchant":3368,"gems":[39996]},
+	{"id":46036,"enchant":3368,"gems":[39996]},
+	{"id":45254}
 ]}`)
 
-var FrostP1Gear = core.EquipmentSpecFromJsonString(`{ "items": [
-	{
-		"id": 44006,
-		"enchant": 3817,
-		"gems": [
-			41398,
-			42702
-		]
-	},
-	{
-		"id": 44664,
-		"gems": [
-			39996
-		]
-	},
-	{
-		"id": 40557,
-		"enchant": 3808,
-		"gems": [
-			39996
-		]
-	},
-	{
-		"id": 40403,
-		"enchant": 3831
-	},
-	{
-		"id": 40550,
-		"enchant": 3832,
-		"gems": [
-			42142,
-			39996
-		]
-	},
-	{
-		"id": 40330,
-		"enchant": 3845,
-		"gems": [
-			39996,
-			0
-		]
-	},
-	{
-		"id": 40552,
-		"enchant": 3604,
-		"gems": [
-			39996,
-			0
-		]
-	},
-	{
-		"id": 40278,
-		"gems": [
-			39996,
-			42142
-		]
-	},
-	{
-		"id": 40556,
-		"enchant": 3823,
-		"gems": [
-			42142,
-			39996
-		]
-	},
-	{
-		"id": 40591,
-		"enchant": 3606
-	},
-	{
-		"id": 39401
-	},
-	{
-		"id": 40075
-	},
-	{
-		"id": 40256
-	},
-	{
-		"id": 42987
-	},
-	{
-		"id": 40189,
-		"enchant": 3370
-	},
-	{
-		"id": 40189,
-		"enchant": 3368
-	},
-	{
-		"id": 40207
-	}
+var FrostP1Gear = core.EquipmentSpecFromJsonString(`{"items":[
+	{"id":44006,"enchant":3817,"gems":[41398,42702]},
+	{"id":44664,"gems":[39996]},
+	{"id":40557,"enchant":3808,"gems":[39996]},
+	{"id":40403,"enchant":3831},
+	{"id":40550,"enchant":3832,"gems":[42142,39996]},
+	{"id":40330,"enchant":3845,"gems":[39996,0]},
+	{"id":40552,"enchant":3604,"gems":[39996,0]},
+	{"id":40278,"gems":[39996,42142]},
+	{"id":40556,"enchant":3823,"gems":[42142,39996]},
+	{"id":40591,"enchant":3606},{"id":39401},
+	{"id":40075},
+	{"id":40256},
+	{"id":42987},
+	{"id":40189,"enchant":3370},
+	{"id":40189,"enchant":3368},
+	{"id":40207}
 ]}`)
 
-var FrostP2Gear = core.EquipmentSpecFromJsonString(`{ "items": [
-	{
-	  "id": 46115,
-	  "enchant": 3817,
-	  "gems": [
-		41398,
-		42702
-	  ]
-	},
-	{
-	  "id": 45459,
-	  "gems": [
-		39996
-	  ]
-	},
-	{
-	  "id": 46117,
-	  "enchant": 3808,
-	  "gems": [
-		39996
-	  ]
-	},
-	{
-	  "id": 46032,
-	  "enchant": 3831,
-	  "gems": [
-		39996,
-		39996
-	  ]
-	},
-	{
-	  "id": 46111,
-	  "enchant": 3832,
-	  "gems": [
-		42142,
-		42142
-	  ]
-	},
-	{
-	  "id": 45663,
-	  "enchant": 3845,
-	  "gems": [
-		39996,
-		0
-	  ]
-	},
-	{
-	  "id": 46113,
-	  "enchant": 3604,
-	  "gems": [
-		39996,
-		0
-	  ]
-	},
-	{
-	  "id": 45241,
-	  "gems": [
-		42142,
-		45862,
-		39996
-	  ]
-	},
-	{
-	  "id": 45134,
-	  "enchant": 3823,
-	  "gems": [
-		39996,
-		39996,
-		39996
-	  ]
-	},
-	{
-	  "id": 45599,
-	  "enchant": 3606,
-	  "gems": [
-		39996,
-		39996
-	  ]
-	},
-	{
-	  "id": 45608,
-	  "gems": [
-		39996
-	  ]
-	},
-	{
-	  "id": 45534,
-	  "gems": [
-		39996
-	  ]
-	},
-	{
-	  "id": 45931
-	},
-	{
-	  "id": 42987
-	},
-	{
-	  "id": 46097,
-	  "enchant": 3370,
-	  "gems": [
-		39996
-	  ]
-	},
-	{
-	  "id": 46097,
-	  "enchant": 3368,
-	  "gems": [
-		39996
-	  ]
-	},
-	{
-	  "id": 40207
-	}
+var FrostP2Gear = core.EquipmentSpecFromJsonString(`{"items":[
+	{"id":46115,"enchant":3817,"gems":[41398,42702]},
+	{"id":45459,"gems":[39996]},
+	{"id":46117,"enchant":3808,"gems":[39996]},
+	{"id":46032,"enchant":3831,"gems":[39996,39996]},
+	{"id":46111,"enchant":3832,"gems":[42142,42142]},
+	{"id":45663,"enchant":3845,"gems":[39996,0]},
+	{"id":46113,"enchant":3604,"gems":[39996,0]},
+	{"id":45241,"gems":[42142,45862,39996]},
+	{"id":45134,"enchant":3823,"gems":[39996,39996,39996]},
+	{"id":45599,"enchant":3606,"gems":[39996,39996]},
+	{"id":45608,"gems":[39996]},
+	{"id":45534,"gems":[39996]},
+	{"id":45931},
+	{"id":42987},
+	{"id":46097,"enchant":3370,"gems":[39996]},
+	{"id":46097,"enchant":3368,"gems":[39996]},
+	{"id":40207}
 ]}`)

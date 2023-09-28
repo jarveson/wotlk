@@ -177,9 +177,9 @@ func (priest *Priest) AddShadowWeavingStack(sim *core.Simulation) {
 func (priest *Priest) Reset(_ *core.Simulation) {
 }
 
-func New(char core.Character, selfBuffs SelfBuffs, talents string) *Priest {
+func New(char *core.Character, selfBuffs SelfBuffs, talents string) *Priest {
 	priest := &Priest{
-		Character: char,
+		Character: *char,
 		SelfBuffs: selfBuffs,
 		Talents:   &proto.PriestTalents{},
 	}

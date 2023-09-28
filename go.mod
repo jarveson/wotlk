@@ -3,7 +3,6 @@ module github.com/wowsims/wotlk
 go 1.18
 
 require (
-	github.com/golang/protobuf v1.5.3
 	github.com/google/go-cmp v0.5.8
 	github.com/pkg/browser v0.0.0-20210911075715-681adbf594b8
 	github.com/satori/go.uuid v1.2.0

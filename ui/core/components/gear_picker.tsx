@@ -43,7 +43,8 @@ import {
 } from '../proto/ui.js';
 import { IndividualSimUI } from '../individual_sim_ui.js';
 import { Tooltip } from 'bootstrap';
-import { element, fragment, ref } from 'tsx-vanilla';
+//import { element as h, fragment as Fragment, ref } from '../tsx-vanilla.js';
+import {h, Fragment, render} from 'preact';
 
 import { Clusterize } from './virtual_scroll/clusterize.js';
 
@@ -132,6 +133,19 @@ export class ItemRenderer extends Component {
 		let nameElem = ref<HTMLAnchorElement>();
 		let enchantElem = ref<HTMLAnchorElement>();
 		let sce = ref<HTMLDivElement>();
+		let ele = (
+			<>
+				<a ref={iconElem} className="item-picker-icon" href="javascript:void(0)" attributes={{role:"button"}}>
+					<div ref={sce} className="item-picker-sockets-container"></div>
+				</a>
+				<div className="item-picker-labels-container">
+					<a ref={nameElem} className="item-picker-name" href="javascript:void(0)" attributes={{role:"button"}}></a>
+					<br/>
+					<a ref={enchantElem} className="item-picker-enchant" href="javascript:void(0)" attributes={{role:"button"}}></a>
+				</div>
+			</>
+		);
+		render(ele, this.rootElem);
 		this.rootElem.appendChild(
 			<>
 				<a ref={iconElem} className="item-picker-icon" href="javascript:void(0)" attributes={{role:"button"}}>

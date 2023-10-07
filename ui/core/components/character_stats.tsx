@@ -3,246 +3,300 @@ import { TristateEffect } from '..//proto/common.js'
 import { getClassStatName, statOrder } from '..//proto_utils/names.js';
 import { Stats } from '..//proto_utils/stats.js';
 import { Player } from '..//player.js';
-import { EventID, TypedEvent } from '..//typed_event.js';
+import { Disposable, EventID, TypedEvent } from '..//typed_event.js';
 
 import * as Mechanics from '../constants/mechanics.js';
 
 import { NumberPicker } from './number_picker';
 import { Component } from './component.js';
 
-import { Popover, Tooltip } from 'bootstrap';
+import { Tooltip, Popover, OverlayTrigger, Overlay } from 'react-bootstrap';
 
-import { element, fragment } from 'tsx-vanilla';
+import { useSignal, useComputed, Signal, useSignalEffect } from '@preact/signals';
+import { useEffect, useRef, useState } from 'preact/hooks';
+import { h, Fragment } from 'preact';
 
-export type StatMods = { talents: Stats };
+interface InputPProps<ModObject, T, V = T> {
+	modObject: ModObject,
 
-export class CharacterStats extends Component {
-	readonly stats: Array<Stat>;
-	readonly valueElems: Array<HTMLTableCellElement>;
-	readonly meleeCritCapValueElem: HTMLTableCellElement | undefined;
+	label?: string,
+	labelTooltip?: string,
+	inline?: boolean,
+	extraCssClasses?: Array<string>,
 
-	private readonly player: Player<any>;
-	private readonly modifyDisplayStats?: (player: Player<any>) => StatMods;
+	children: h.JSX.Element,
 
-	constructor(parent: HTMLElement, player: Player<any>, stats: Array<Stat>, modifyDisplayStats?: (player: Player<any>) => StatMods) {
-		super(parent, 'character-stats-root');
-		this.stats = statOrder.filter(stat => stats.includes(stat));
-		this.player = player;
-		this.modifyDisplayStats = modifyDisplayStats;
+	defaultValue?: T,
 
-		const label = document.createElement('label');
-		label.classList.add('character-stats-label');
-		label.textContent = 'Stats';
-		this.rootElem.appendChild(label);
+	// If set, will automatically disable the input when this evaluates to false.
+	enableWhen?: (obj: ModObject) => boolean,
 
-		const table = document.createElement('table');
-		table.classList.add('character-stats-table');
-		this.rootElem.appendChild(table);
+	// If set, will automatically hide the input when this evaluates to false.
+	showWhen?: (obj: ModObject) => boolean,
 
-		this.valueElems = [];
-		this.stats.forEach(stat => {
-			let statName = getClassStatName(stat, player.getClass());
+	// Returns the event indicating the mapped value has changed.
+	changedEvent: (obj: ModObject) => TypedEvent<any>,
 
-			const row = (
-			<tr
-				className='character-stats-table-row'
-			>
-				<td className="character-stats-table-label">{statName}</td>
-				<td className="character-stats-table-value">
-					{this.bonusStatsLink(stat)}
-				</td>
-			</tr>);
+	// Get and set the mapped value.
+	getValue: (obj: ModObject) => T,
+	setValue: (eventID: EventID, obj: ModObject, newValue: T) => void,
 
-			table.appendChild(row);
+	// Convert between source value and input value types. In most cases this is not needed
+	// because source and input use the same type. These functions must be set if T != V.
+	sourceToValue?: (src: T) => V,
+	valueToSource?: (val: V) => T,
 
-			const valueElem = row.getElementsByClassName('character-stats-table-value')[0] as HTMLTableCellElement;
-			this.valueElems.push(valueElem);
-		});
+	getInputValue(): T;
+	setInputValue(newValue: T): void;
 
-		if(this.shouldShowMeleeCritCap(player)) {
-			const row = (
-			<tr
-				className='character-stats-table-row'
-			>
-				<td className="character-stats-table-label">Melee Crit Cap</td>
-				<td className="character-stats-table-value"></td>
-			</tr>);
+	inputChanged: Signal<number>;
+}
 
-			table.appendChild(row);
-			this.meleeCritCapValueElem = row.getElementsByClassName('character-stats-table-value')[0] as HTMLTableCellElement;
+
+interface InputPPropsExternal<ModObject, T, V = T> {
+	modObject: ModObject,
+
+	label?: string,
+	labelTooltip?: string,
+	inline?: boolean,
+	extraCssClasses?: Array<string>,
+
+	defaultValue?: T,
+
+	// If set, will automatically disable the input when this evaluates to false.
+	enableWhen?: (obj: ModObject) => boolean,
+
+	// If set, will automatically hide the input when this evaluates to false.
+	showWhen?: (obj: ModObject) => boolean,
+
+	// Returns the event indicating the mapped value has changed.
+	changedEvent: (obj: ModObject) => TypedEvent<any>,
+
+	// Get and set the mapped value.
+	getValue: (obj: ModObject) => T,
+	setValue: (eventID: EventID, obj: ModObject, newValue: T) => void,
+
+	// Convert between source value and input value types. In most cases this is not needed
+	// because source and input use the same type. These functions must be set if T != V.
+	sourceToValue?: (src: T) => V,
+	valueToSource?: (val: V) => T,
+}
+
+interface ILPP {
+	label: string;
+	labelTooltip?: string;
+}
+
+const InputLabelP = (props: ILPP) => {
+	let labelRef = useRef(null);
+	return (
+		<label ref={labelRef} className="form-label">
+			{props.label}
+			{props.labelTooltip && 
+			<Overlay target={labelRef}>
+				<Tooltip>{props.labelTooltip}</Tooltip>
+			</Overlay>}
+		</label>
+	)
+}
+
+function InputP<ModObject, T, V = T>(props : InputPProps<ModObject, T, V>) {
+	let enabled = useSignal(!props.enableWhen || props.enableWhen(props.modObject));
+	let shown = useSignal(!props.showWhen || props.showWhen(props.modObject));
+	let disabled = useComputed(() => !enabled.value);
+
+	let update = () => {
+		enabled.value = !props.enableWhen || props.enableWhen(props.modObject);
+		shown.value = !props.showWhen || props.showWhen(props.modObject);
+	}
+
+	let classList = 'input-root';
+	if (props.extraCssClasses)
+		classList += ' ' + props.extraCssClasses.join(' ');
+	if (props.inline)
+		classList += ' input-inline';
+	if (!enabled.value)
+		classList += ' disabled';
+	if (!shown.value)
+		classList += ' hide';
+
+	const initialValue = props.defaultValue ? props.defaultValue : props.getValue(props.modObject);
+	props.setInputValue(initialValue);
+
+	let e: Disposable | null = null;
+	useEffect(() => {
+		e = props.changedEvent(props.modObject).on(eventID => {
+			props.setInputValue(props.getValue(props.modObject));
+			update();
+		})
+		return () => e && e.dispose();
+	});
+
+	let changeEmitter = new TypedEvent<void>()
+	useSignalEffect(() => {
+		let eid = props.inputChanged.value;
+		props.setValue(eid, props.modObject, props.getInputValue());
+		changeEmitter.emit(eid);
+	})	
+
+	return (
+	<div class={classList} disabled={disabled}>
+		{ props.label && <InputLabelP label={props.label} labelTooltip={props.labelTooltip}/>}
+		{ props.children }
+	</div>
+	);
+}
+
+interface NPP<ModObject, T, V = T> extends InputPPropsExternal<ModObject, T, V> {
+	float? : boolean;
+	positive? : boolean;
+}
+
+function NumberPickerP<ModObject>(props: NPP<ModObject, number>) {
+	let float = useSignal(props.float || false);
+	let positive = useSignal(props.positive || false);
+	let inputValue = useSignal('');
+	let inputSize = useSignal(3);
+	let eventId = useSignal(0);
+
+	let cssClasses = ['number-picker-root'];
+	if (props.extraCssClasses)
+		cssClasses.push(...props.extraCssClasses);
+
+	let onchange = () => {
+		if (positive.value) {
+			if (float.value) {
+				inputValue.value = Math.abs(parseFloat(inputValue.value)).toFixed(2);
+			} else {
+				inputValue.value = Math.abs(parseInt(inputValue.value)).toString();
+			}
+		}
+		eventId.value = TypedEvent.nextEventID();
+	}
+
+	let updatesize = () => {
+		inputSize.value = Math.max(3, inputValue.value.length);
+	}
+
+	let oninput = () => {
+		updatesize();
+	}
+
+	let getInputValue = () => {
+		if (props.float) {
+			return parseFloat(inputValue.value) || 0;
 		} else {
-			this.meleeCritCapValueElem = undefined;
-		}
-
-		this.updateStats(player);
-		TypedEvent.onAny([player.currentStatsEmitter, player.sim.changeEmitter, player.talentsChangeEmitter]).on(() => {
-			this.updateStats(player);
-		});
-	}
-
-	private updateStats(player: Player<any>) {
-		const playerStats = player.getCurrentStats();
-
-		const statMods = this.modifyDisplayStats ? this.modifyDisplayStats(this.player) : {
-			talents: new Stats(),
-		};
-
-		const baseStats = Stats.fromProto(playerStats.baseStats);
-		const gearStats = Stats.fromProto(playerStats.gearStats);
-		const talentsStats = Stats.fromProto(playerStats.talentsStats);
-		const buffsStats = Stats.fromProto(playerStats.buffsStats);
-		const consumesStats = Stats.fromProto(playerStats.consumesStats);
-		const debuffStats = this.getDebuffStats();
-		const bonusStats = player.getBonusStats();
-
-		const baseDelta = baseStats;
-		const gearDelta = gearStats.subtract(baseStats).subtract(bonusStats);
-		const talentsDelta = talentsStats.subtract(gearStats).add(statMods.talents);
-		const buffsDelta = buffsStats.subtract(talentsStats);
-		const consumesDelta = consumesStats.subtract(buffsStats);
-
-		const finalStats = Stats.fromProto(playerStats.finalStats).add(statMods.talents).add(debuffStats);
-
-		this.stats.forEach((stat, idx) => {
-			let valueElem = (
-				<a
-					href="javascript:void(0)"
-					className="stat-value-link"
-					attributes={{role:"button"}}>
-					{`${this.statDisplayString(finalStats, finalStats, stat)} `}
-				</a>
-			)
-
-			this.valueElems[idx].querySelector('.stat-value-link')?.remove();
-			this.valueElems[idx].prepend(valueElem);
-
-			let bonusStatValue = bonusStats.getStat(stat);
-
-			if (bonusStatValue == 0) {
-				valueElem.classList.add('text-white');
-			} else if (bonusStatValue > 0) {
-				valueElem.classList.add('text-success');
-			} else if (bonusStatValue < 0) {
-				valueElem.classList.add('text-danger');
-			}
-
-			let tooltipContent =
-			<div>
-				<div className="character-stats-tooltip-row">
-					<span>Base:</span>
-					<span>{this.statDisplayString(baseStats, baseDelta, stat)}</span>
-				</div>
-				<div className="character-stats-tooltip-row">
-					<span>Gear:</span>
-					<span>{this.statDisplayString(gearStats, gearDelta, stat)}</span>
-				</div>
-				<div className="character-stats-tooltip-row">
-					<span>Talents:</span>
-					<span>{this.statDisplayString(talentsStats, talentsDelta, stat)}</span>
-				</div>
-				<div className="character-stats-tooltip-row">
-					<span>Buffs:</span>
-					<span>{this.statDisplayString(buffsStats, buffsDelta, stat)}</span>
-				</div>
-				<div className="character-stats-tooltip-row">
-					<span>Consumes:</span>
-					<span>{this.statDisplayString(consumesStats, consumesDelta, stat)}</span>
-				</div>
-				{debuffStats.getStat(stat) != 0 &&
-				<div className="character-stats-tooltip-row">
-					<span>Debuffs:</span>
-					<span>{this.statDisplayString(debuffStats, debuffStats, stat)}</span>
-				</div>
-				}
-				{bonusStatValue != 0 &&
-				<div className="character-stats-tooltip-row">
-					<span>Bonus:</span>
-					<span>{this.statDisplayString(bonusStats, bonusStats, stat)}</span>
-				</div>
-				}
-				<div className="character-stats-tooltip-row">
-					<span>Total:</span>
-					<span>{this.statDisplayString(finalStats, finalStats, stat)}</span>
-				</div>
-			</div>;
-			Tooltip.getOrCreateInstance(valueElem, {
-				title: tooltipContent,
-				html: true,
-			});
-		});
-
-		if(this.meleeCritCapValueElem) {
-			const meleeCritCapInfo = player.getMeleeCritCapInfo();
-
-			const valueElem = (
-				<a
-					href="javascript:void(0)"
-					className="stat-value-link"
-					attributes={{role:"button"}}>
-					{`${this.meleeCritCapDisplayString(player, finalStats)} `}
-				</a>
-			)
-
-			const capDelta = meleeCritCapInfo.playerCritCapDelta;
-			if (capDelta == 0) {
-				valueElem.classList.add('text-white');
-			} else if (capDelta > 0) {
-				valueElem.classList.add('text-danger');
-			} else if (capDelta < 0) {
-				valueElem.classList.add('text-success');
-			}
-
-			this.meleeCritCapValueElem.querySelector('.stat-value-link')?.remove();
-			this.meleeCritCapValueElem.prepend(valueElem);
-
-			const tooltipContent = (
-			<div>
-				<div className="character-stats-tooltip-row">
-					<span>Glancing:</span>
-					<span>{`${meleeCritCapInfo.glancing.toFixed(2)}%`}</span>
-				</div>
-				<div className="character-stats-tooltip-row">
-					<span>Suppression:</span>
-					<span>{`${meleeCritCapInfo.suppression.toFixed(2)}%`}</span>
-				</div>
-				<div className="character-stats-tooltip-row">
-					<span>To Hit Cap:</span>
-					<span>{`${meleeCritCapInfo.remainingMeleeHitCap.toFixed(2)}%`}</span>
-				</div>
-				<div className="character-stats-tooltip-row">
-					<span>To Exp Cap:</span>
-					<span>{`${meleeCritCapInfo.remainingExpertiseCap.toFixed(2)}%`}</span>
-				</div>
-				<div className="character-stats-tooltip-row">
-					<span>Debuffs:</span>
-					<span>{`${meleeCritCapInfo.debuffCrit.toFixed(2)}%`}</span>
-				</div>
-				{meleeCritCapInfo.specSpecificOffset != 0 &&
-				<div className="character-stats-tooltip-row">
-					<span>Spec Offsets:</span>
-					<span>{`${meleeCritCapInfo.specSpecificOffset.toFixed(2)}%`}</span>
-				</div>
-				}
-				<div className="character-stats-tooltip-row">
-					<span>Final Crit Cap:</span>
-					<span>{`${meleeCritCapInfo.baseCritCap.toFixed(2)}%`}</span>
-				</div>
-				<hr/>
-				<div className="character-stats-tooltip-row">
-					<span>Can Raise By:</span>
-					<span>{`${(meleeCritCapInfo.remainingExpertiseCap + meleeCritCapInfo.remainingMeleeHitCap).toFixed(2)}%`}</span>
-				</div>
-			</div>
-			);
-
-			Tooltip.getOrCreateInstance(valueElem, {
-				title: tooltipContent,
-				html: true,
-			});
+			return parseInt(inputValue.value) || 0;
 		}
 	}
 
-	private statDisplayString(stats: Stats, deltaStats: Stats, stat: Stat): string {
+	let setInputValue = (newValue: number) => {
+		if (props.float)
+			inputValue.value = newValue.toFixed(2);
+		else
+			inputValue.value = String(newValue);
+	}
+
+	return (
+	<InputP
+		modObject={props.modObject}
+		label={props.label}
+		labelTooltip={props.labelTooltip}
+		inline={props.inline}
+		extraCssClasses={props.extraCssClasses}
+		defaultValue={props.defaultValue}
+		enableWhen={props.enableWhen}
+		showWhen={props.showWhen}
+		changedEvent={props.changedEvent}
+		getValue={props.getValue}
+		setValue={props.setValue}
+		sourceToValue={props.sourceToValue}
+		valueToSource={props.valueToSource}
+		setInputValue={setInputValue}
+		inputChanged={eventId}
+		getInputValue={getInputValue}
+	>
+		<input 
+			type='text' 
+			class='form-control number-picker-input'
+			onChange={onchange}
+			onInput={oninput}
+			size={inputSize}
+		>
+			{inputValue}
+		</input>
+	</InputP>
+	);
+}
+
+interface BSLP {
+	stat: Stat;
+	player: Player<any>;
+}
+
+const BonusStatsLink = (props: BSLP) => {
+	let statName = getClassStatName(props.stat, props.player.getClass());
+	let [shown, setShown] = useState(false);
+
+	let picker = <NumberPickerP
+					modObject={props.player}
+					label={`Bonus ${statName}`}
+					extraCssClasses={['mb-0']}
+					changedEvent={(player: Player<any>) => player.bonusStatsChangeEmitter}
+					getValue={(player: Player<any>) => player.getBonusStats().getStat(props.stat)}
+					setValue={(eventID: EventID, player: Player<any>, newValue: number) => {
+						const bonusStats = player.getBonusStats().withStat(props.stat, newValue);
+						player.setBonusStats(eventID, bonusStats);
+						setShown(false);
+					}}
+				/>;
+
+	return (
+		<OverlayTrigger
+			trigger='click'
+			placement='right'
+			overlay={picker}
+			show={shown}
+		>
+			<a
+				href="javascript:void(0)"
+				class='add-bonus-stats text-white ms-2'
+				data-bs-toggle='popover'
+				role={'button'}
+			>
+				<i class="fas fa-plus-minus"></i>
+			</a>
+		</OverlayTrigger>
+	)
+}
+
+interface ISP {
+	player: Player<any>;
+	idx: number;
+	stat: Stat;
+	baseStats: Stats;
+	baseDelta: Stats;
+
+	gearStats: Stats;
+	gearDelta: Stats;
+
+	talentsStats: Stats;
+	talentsDelta: Stats;
+
+	buffsStats: Stats;
+	buffsDelta: Stats;
+
+	consumesStats: Stats;
+	consumesDelta: Stats;
+
+	finalStats: Stats;
+	bonusStats: Stats;
+
+	debuffStats: Stats;
+}
+
+const IndividualStat = (props: ISP) => {
+	const statDisplayString = (stats: Stats, deltaStats: Stats, stat: Stat): string => {
 		let rawValue = deltaStats.getStat(stat);
 
 		if (stat == Stat.StatBlockValue) {
@@ -258,7 +312,7 @@ export class CharacterStats extends Component {
 		} else if (stat == Stat.StatMeleeCrit || stat == Stat.StatSpellCrit) {
 			displayStr += ` (${(rawValue / Mechanics.SPELL_CRIT_RATING_PER_CRIT_CHANCE).toFixed(2)}%)`;
 		} else if (stat == Stat.StatMeleeHaste) {
-			if ([Class.ClassDruid, Class.ClassShaman, Class.ClassPaladin, Class.ClassDeathknight].includes(this.player.getClass())) {
+			if ([Class.ClassDruid, Class.ClassShaman, Class.ClassPaladin, Class.ClassDeathknight].includes(props.player.getClass())) {
 				displayStr += ` (${(rawValue / Mechanics.SPECIAL_MELEE_HASTE_RATING_PER_HASTE_PERCENT).toFixed(2)}%)`;
 			} else {
 				displayStr += ` (${(rawValue / Mechanics.HASTE_RATING_PER_HASTE_PERCENT).toFixed(2)}%)`;
@@ -290,11 +344,165 @@ export class CharacterStats extends Component {
 
 		return displayStr;
 	}
+	let bonusStatValue = props.bonusStats.getStat(props.stat);
 
-	private getDebuffStats(): Stats {
+	let tooltipContent = 
+	<div>
+		<div className="character-stats-tooltip-row">
+			<span>Base:</span>
+			<span>{statDisplayString(props.baseStats, props.baseDelta, props.stat)}</span>
+		</div>
+		<div className="character-stats-tooltip-row">
+			<span>Gear:</span>
+			<span>{statDisplayString(props.gearStats, props.gearDelta, props.stat)}</span>
+		</div>
+		<div className="character-stats-tooltip-row">
+			<span>Talents:</span>
+			<span>{statDisplayString(props.talentsStats, props.talentsDelta, props.stat)}</span>
+		</div>
+		<div className="character-stats-tooltip-row">
+			<span>Buffs:</span>
+			<span>{statDisplayString(props.buffsStats, props.buffsDelta, props.stat)}</span>
+		</div>
+		<div className="character-stats-tooltip-row">
+			<span>Consumes:</span>
+			<span>{statDisplayString(props.consumesStats, props.consumesDelta, props.stat)}</span>
+		</div>
+		{props.debuffStats.getStat(props.stat) != 0 &&
+		<div className="character-stats-tooltip-row">
+			<span>Debuffs:</span>
+			<span>{statDisplayString(props.debuffStats, props.debuffStats, props.stat)}</span>
+		</div>
+		}
+		{bonusStatValue != 0 &&
+		<div className="character-stats-tooltip-row">
+			<span>Bonus:</span>
+			<span>{statDisplayString(props.bonusStats, props.bonusStats, props.stat)}</span>
+		</div>
+		}
+		<div className="character-stats-tooltip-row">
+			<span>Total:</span>
+			<span>{statDisplayString(props.finalStats, props.finalStats, props.stat)}</span>
+		</div>
+	</div>;
+
+	let bonusClass = bonusStatValue == 0 ? 'text-white' : bonusStatValue > 0 ? 'text-success' : 'text-danger';
+
+	let aref = useRef(null);
+	return(
+		<a
+			ref={aref}
+			href="javascript:void(0)" 
+			className={`stat-value-link ${bonusClass}`}
+			role='button'>
+			{`${statDisplayString(props.finalStats, props.finalStats, props.stat)} `}
+			<Overlay target={aref}>
+				<Tooltip>{tooltipContent}</Tooltip>
+			</Overlay>
+		</a>
+	)
+}
+
+interface McctProps {
+	player: Player<any>,
+	finalStats: Stats,
+}
+
+const MeleeCritCapTooltip = (props: McctProps) => {
+	const meleeCritCapInfo = props.player.getMeleeCritCapInfo();
+
+	const meleeCritCapDisplayString = (player: Player<any>, finalStats: Stats): string => {
+		const playerCritCapDelta = player.getMeleeCritCap();
+
+		if(playerCritCapDelta === 0.0) {
+			return 'Exact';
+		}
+
+		const prefix = playerCritCapDelta > 0 ? 'Over by ' : 'Under by ';
+		return `${prefix} ${Math.abs(playerCritCapDelta).toFixed(2)}%`;
+	}
+
+	const tooltipContent = (
+		<div>
+			<div className="character-stats-tooltip-row">
+				<span>Glancing:</span>
+				<span>{`${meleeCritCapInfo.glancing.toFixed(2)}%`}</span>
+			</div>
+			<div className="character-stats-tooltip-row">
+				<span>Suppression:</span>
+				<span>{`${meleeCritCapInfo.suppression.toFixed(2)}%`}</span>
+			</div>
+			<div className="character-stats-tooltip-row">
+				<span>To Hit Cap:</span>
+				<span>{`${meleeCritCapInfo.remainingMeleeHitCap.toFixed(2)}%`}</span>
+			</div>
+			<div className="character-stats-tooltip-row">
+				<span>To Exp Cap:</span>
+				<span>{`${meleeCritCapInfo.remainingExpertiseCap.toFixed(2)}%`}</span>
+			</div>
+			<div className="character-stats-tooltip-row">
+				<span>Debuffs:</span>
+				<span>{`${meleeCritCapInfo.debuffCrit.toFixed(2)}%`}</span>
+			</div>
+			{meleeCritCapInfo.specSpecificOffset != 0 &&
+			<div className="character-stats-tooltip-row">
+				<span>Spec Offsets:</span>
+				<span>{`${meleeCritCapInfo.specSpecificOffset.toFixed(2)}%`}</span>
+			</div>
+			}
+			<div className="character-stats-tooltip-row">
+				<span>Final Crit Cap:</span>
+				<span>{`${meleeCritCapInfo.baseCritCap.toFixed(2)}%`}</span>
+			</div>
+			<hr/>
+			<div className="character-stats-tooltip-row">
+				<span>Can Raise By:</span>
+				<span>{`${(meleeCritCapInfo.remainingExpertiseCap + meleeCritCapInfo.remainingMeleeHitCap).toFixed(2)}%`}</span>
+			</div>
+		</div>
+	);
+
+	const capDelta = meleeCritCapInfo.playerCritCapDelta;
+	let bonusClass = capDelta == 0 ? 'text-white' : capDelta < 0 ? 'text-success' : 'text-danger';
+
+	let aref = useRef(null);
+	return (
+		<a
+			ref={aref}
+			href="javascript:void(0)"
+			class={`stat-value-link ${bonusClass}`}
+			role="button">
+			{`${meleeCritCapDisplayString(props.player, props.finalStats)} `}
+			<Overlay target={aref}>
+				<Tooltip>{tooltipContent}</Tooltip>
+			</Overlay>
+		</a>
+	)
+}
+
+export type StatMods = { talents: Stats };
+
+export interface CSP {
+	player: Player<any>;
+	stats: Array<Stat>;
+	modifyDisplayStats?: (player: Player<any>) => StatMods
+}
+
+export const CharacterStatsPreact = (props: CSP) => {
+	let stats = statOrder.filter(stat => props.stats.includes(stat));
+	let [playerStats, setPlayerStats] = useState(props.player.getCurrentStats());
+
+	useEffect(() => {
+		TypedEvent.onAny([props.player.currentStatsEmitter, props.player.sim.changeEmitter, props.player.talentsChangeEmitter]).on(() => {
+			setPlayerStats(props.player.getCurrentStats());
+		});
+		// fix me and clear event sub
+	});
+
+	const getDebuffStats = () => {
 		let debuffStats = new Stats();
 
-		const debuffs = this.player.sim.raid.getDebuffs();
+		const debuffs = props.player.sim.raid.getDebuffs();
 		if (debuffs.misery || debuffs.faerieFire == TristateEffect.TristateEffectImproved) {
 			debuffStats = debuffStats.addStat(Stat.StatSpellHit, 3 * Mechanics.SPELL_HIT_RATING_PER_HIT_CHANCE);
 		}
@@ -309,47 +517,7 @@ export class CharacterStats extends Component {
 		return debuffStats;
 	}
 
-	private bonusStatsLink(stat: Stat): HTMLElement {
-		let statName = getClassStatName(stat, this.player.getClass());
-
-		let link = (
-			<a
-				href="javascript:void(0)"
-				className='add-bonus-stats text-white ms-2'
-				dataset={{bsToggle: 'popover'}}
-				attributes={{role:'button'}}
-			>
-				<i className="fas fa-plus-minus"></i>
-			</a>
-		);
-
-		let popover: Popover | null = null;
-
-		let picker = new NumberPicker(null, this.player, {
-			label: `Bonus ${statName}`,
-			extraCssClasses: ['mb-0'],
-			changedEvent: (player: Player<any>) => player.bonusStatsChangeEmitter,
-			getValue: (player: Player<any>) => player.getBonusStats().getStat(stat),
-			setValue: (eventID: EventID, player: Player<any>, newValue: number) => {
-				const bonusStats = player.getBonusStats().withStat(stat, newValue);
-				player.setBonusStats(eventID, bonusStats);
-				popover?.hide();
-			},
-		});
-
-		popover = new Popover(link, {
-			customClass: 'bonus-stats-popover',
-			placement: 'right',
-			fallbackPlacement: ['left'],
-			sanitize: false,
-			html:true,
-			content: picker.rootElem,
-		});
-
-		return link as HTMLElement;
-	}
-
-	private shouldShowMeleeCritCap(player: Player<any>): boolean {
+	const shouldShowMeleeCritCap = (player: Player<any>): boolean => {
 		return [
 			Spec.SpecDeathknight,
 			Spec.SpecEnhancementShaman,
@@ -360,14 +528,74 @@ export class CharacterStats extends Component {
 		].includes(player.spec);
 	}
 
-	private meleeCritCapDisplayString(player: Player<any>, finalStats: Stats): string {
-		const playerCritCapDelta = player.getMeleeCritCap();
+	const statMods = props.modifyDisplayStats ? props.modifyDisplayStats(props.player) : {
+		talents: new Stats(),
+	};
 
-		if(playerCritCapDelta === 0.0) {
-			return 'Exact';
-		}
+	const baseStats = Stats.fromProto(playerStats.baseStats);
+	const gearStats = Stats.fromProto(playerStats.gearStats);
+	const talentsStats = Stats.fromProto(playerStats.talentsStats);
+	const buffsStats = Stats.fromProto(playerStats.buffsStats);
+	const consumesStats = Stats.fromProto(playerStats.consumesStats);
+	const debuffStats = getDebuffStats();
+	const bonusStats = props.player.getBonusStats();
 
-		const prefix = playerCritCapDelta > 0 ? 'Over by ' : 'Under by ';
-		return `${prefix} ${Math.abs(playerCritCapDelta).toFixed(2)}%`;
-	}
+	const baseDelta = baseStats;
+	const gearDelta = gearStats.subtract(baseStats).subtract(bonusStats);
+	const talentsDelta = talentsStats.subtract(gearStats).add(statMods.talents);
+	const buffsDelta = buffsStats.subtract(talentsStats);
+	const consumesDelta = consumesStats.subtract(buffsStats);
+
+	const finalStats = Stats.fromProto(playerStats.finalStats).add(statMods.talents).add(debuffStats);
+
+	return (
+		<div className='character-stats-root'>
+			<label className='character-stats-label'>Stats</label>
+			<table className='character-stats-table'>
+				{
+					stats.map((stat, idx) => {
+						let statName = getClassStatName(stat, props.player.getClass());
+			
+						return (
+						<tr className='character-stats-table-row'>	
+							<td className="character-stats-table-label">{statName}</td>
+							<td className="character-stats-table-value">
+								<IndividualStat 
+								player={props.player}
+								idx={idx}
+								stat={stat}
+								baseStats={baseStats}
+								baseDelta={baseDelta}
+								gearStats={gearStats}
+								gearDelta={gearDelta}
+								talentsDelta={talentsDelta}
+								talentsStats={talentsStats}
+								buffsDelta={buffsDelta}
+								buffsStats={buffsStats}
+								consumesDelta={consumesDelta}
+								consumesStats={consumesStats}
+								finalStats={finalStats}
+								bonusStats={bonusStats}
+								debuffStats={debuffStats}/>
+								<BonusStatsLink stat={stat} player={props.player} />
+							</td>
+						</tr>);
+			
+					})
+				}
+				{
+					shouldShowMeleeCritCap(props.player) &&
+					<tr className='character-stats-table-row'>
+						<td className="character-stats-table-label">Melee Crit Cap</td>
+						<td className="character-stats-table-value">
+							<MeleeCritCapTooltip
+								player={props.player}
+								finalStats={finalStats}
+							/>
+						</td>
+					</tr>
+				}
+			</table>
+		</div>
+	);
 }

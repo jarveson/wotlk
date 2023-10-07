@@ -1,7 +1,7 @@
 import { Tooltip } from 'bootstrap';
 import { Component } from './component.js';
 
-import { element, fragment } from 'tsx-vanilla';
+import { element as h, fragment as Fragment, TSXJSX } from '../tsx-vanilla.js';
 
 export interface ContentBlockHeaderConfig {
 	title: string,
@@ -48,7 +48,7 @@ export class ContentBlock extends Component {
 						{this.config.header.title}
 					</TitleTag>
 				</div>
-			);
+			) as unknown as TSXJSX.Element;
 
 			if (this.config.header.extraCssClasses) {
 				header.classList.add(...this.config.header.extraCssClasses);

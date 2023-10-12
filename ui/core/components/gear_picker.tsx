@@ -43,8 +43,7 @@ import {
 } from '../proto/ui.js';
 import { IndividualSimUI } from '../individual_sim_ui.js';
 import { Tooltip } from 'bootstrap';
-//import { element as h, fragment as Fragment, ref } from '../tsx-vanilla.js';
-import {h, Fragment, render} from 'preact';
+import {h, Fragment, render, createRef} from 'preact';
 
 import { Clusterize } from './virtual_scroll/clusterize.js';
 
@@ -54,22 +53,26 @@ const EP_TOOLTIP = `
 `
 
 const createHeroicLabel = () => {
-	return (<span className='heroic-label'>[H]</span>);
+	let s = document.createElement('span');
+	s.classList.add('heroic-label');
+	s.innerText=`[H]`;
+	return s;
 }
 
 const createGemContainer = (socketColor: GemColor ,gem : Gem|null) => {
-	const gemIconElem = ref<HTMLImageElement>();
+	//const gemIconElem = ref<HTMLImageElement>();
 	
-	let gemContainer = (
+	let gemContainer = document.createElement('div');
+	gemContainer.innerHTML = `
 		<div className="gem-socket-container">
-			<img ref={gemIconElem} className={`gem-icon ${gem == null ? 'hide' : ''}`} />
-			<img className="socket-icon" src={getEmptyGemSocketIconUrl(socketColor)}/>
-		</div>
-	);
+			<img className=${`gem-icon ${gem == null ? 'hide' : ''}`} />
+			<img className="socket-icon" src=${getEmptyGemSocketIconUrl(socketColor)}/>
+		</div>`
+	;
 
 	if (gem != null) {
 		ActionId.fromItemId(gem.id).fill().then(filledId => {
-			gemIconElem.value!.src = filledId.iconUrl;
+			//(gemContainer.querySelector('.gem-icon')! as HTMLImageElement).src = filledId.iconUrl;
 		});
 	}
 	return gemContainer;
@@ -129,40 +132,28 @@ export class ItemRenderer extends Component {
 		super(parent, 'item-picker-root');
 		this.player = player;
 
-		let iconElem = ref<HTMLAnchorElement>();
-		let nameElem = ref<HTMLAnchorElement>();
-		let enchantElem = ref<HTMLAnchorElement>();
-		let sce = ref<HTMLDivElement>();
+		let iconElem = createRef<HTMLAnchorElement>();
+		let nameElem = createRef<HTMLAnchorElement>();
+		let enchantElem = createRef<HTMLAnchorElement>();
+		let sce = createRef<HTMLDivElement>();
 		let ele = (
 			<>
-				<a ref={iconElem} className="item-picker-icon" href="javascript:void(0)" attributes={{role:"button"}}>
+				<a ref={iconElem} className="item-picker-icon" href="javascript:void(0)" role='button'>
 					<div ref={sce} className="item-picker-sockets-container"></div>
 				</a>
 				<div className="item-picker-labels-container">
-					<a ref={nameElem} className="item-picker-name" href="javascript:void(0)" attributes={{role:"button"}}></a>
+					<a ref={nameElem} className="item-picker-name" href="javascript:void(0)" role='button'></a>
 					<br/>
-					<a ref={enchantElem} className="item-picker-enchant" href="javascript:void(0)" attributes={{role:"button"}}></a>
+					<a ref={enchantElem} className="item-picker-enchant" href="javascript:void(0)" role='button'></a>
 				</div>
 			</>
 		);
 		render(ele, this.rootElem);
-		this.rootElem.appendChild(
-			<>
-				<a ref={iconElem} className="item-picker-icon" href="javascript:void(0)" attributes={{role:"button"}}>
-					<div ref={sce} className="item-picker-sockets-container"></div>
-				</a>
-				<div className="item-picker-labels-container">
-					<a ref={nameElem} className="item-picker-name" href="javascript:void(0)" attributes={{role:"button"}}></a>
-					<br/>
-					<a ref={enchantElem} className="item-picker-enchant" href="javascript:void(0)" attributes={{role:"button"}}></a>
-				</div>
-			</>
-		);
 
-		this.iconElem = iconElem.value!;
-		this.nameElem = nameElem.value!;
-		this.enchantElem = enchantElem.value!;
-		this.socketsContainerElem = sce.value!;
+		this.iconElem = iconElem.current!;
+		this.nameElem = nameElem.current!;
+		this.enchantElem = enchantElem.current!;
+		this.socketsContainerElem = sce.current!;
 	}
 
 	clear() {
@@ -479,9 +470,9 @@ export class SelectorModal extends BaseModal {
 
 		window.scrollTo({ top: 0 });
 
-		this.header!.insertAdjacentElement('afterbegin', <ul className="nav nav-tabs selector-modal-tabs"></ul>);
+		//this.header!.insertAdjacentElement('afterbegin', <ul className="nav nav-tabs selector-modal-tabs"></ul>);
 
-		this.body.appendChild(<div className='tab-content selector-modal-tab-content'></div>);
+		//this.body.appendChild(<div className='tab-content selector-modal-tab-content'></div>);
 
 		this.tabsElem = this.rootElem.querySelector('.selector-modal-tabs') as HTMLElement;
 		this.contentElem = this.rootElem.querySelector('.selector-modal-tab-content') as HTMLElement;
@@ -677,7 +668,7 @@ export class SelectorModal extends BaseModal {
 		const tabContentId = (label + '-tab').split(' ').join('');
 		const selected = label === this.config.selectedTab;
 
-		const tabAnchor = ref<HTMLAnchorElement>();
+		/*const tabAnchor = ref<HTMLAnchorElement>();
 		this.tabsElem.appendChild(
 			<li className="nav-item">
 				<a
@@ -754,7 +745,7 @@ export class SelectorModal extends BaseModal {
 			ilist.sizeRefresh()
 		});
 
-		this.ilists.push(ilist);
+		this.ilists.push(ilist);*/
 	}
 
 	private removeTabs(labelSubstring: string) {
@@ -855,8 +846,9 @@ export class ItemList<T> {
 
 		const tabContentId = (label + '-tab').split(' ').join('');
 		const selected = label === config.selectedTab;
+		this.tabContent = document.createElement('div');
 
-		const epButton = ref<HTMLButtonElement>();
+		/*const epButton = ref<HTMLButtonElement>();
 		this.tabContent = (
 			<div
 				id={tabContentId}
@@ -889,11 +881,11 @@ export class ItemList<T> {
 			</div>
 		);
 
-		parent.appendChild(this.tabContent);
+		parent.appendChild(this.tabContent);*/
 
-		new Tooltip(epButton.value!, {
+		/*new Tooltip(epButton.value!, {
 			title: EP_TOOLTIP
-		});
+		});*/
 
 		const show1hWeaponsSelector = makeShow1hWeaponsSelector(this.tabContent.getElementsByClassName('selector-modal-show-1h-weapons')[0] as HTMLElement, player.sim);
 		const show2hWeaponsSelector = makeShow2hWeaponsSelector(this.tabContent.getElementsByClassName('selector-modal-show-2h-weapons')[0] as HTMLElement, player.sim);
@@ -1133,8 +1125,8 @@ export class ItemList<T> {
 		}
 	}
 
-	private createItemElem(item: ItemDataWithIdx<T>): JSX.Element {
-		const itemData = item.data;
+	private createItemElem(item: ItemDataWithIdx<T>): Element {
+		/*const itemData = item.data;
 		const itemEP = this.computeEP(itemData.item);
 
 		const equipedItem = this.equippedToItemFn(this.gearData.getEquippedItem());
@@ -1261,7 +1253,8 @@ export class ItemList<T> {
 			listItemElem.dataset.fav = 'false';
 		}
 
-		return listItemElem;
+		return listItemElem;*/
+		return document.createElement('div');
 	}
 
 	private isItemFavorited(itemData: ItemData<T>) : boolean {
@@ -1275,13 +1268,14 @@ export class ItemList<T> {
 		return false;
 	}
 
-	private getSourceInfo(item: Item, sim: Sim): JSX.Element {
+	private getSourceInfo(item: Item, sim: Sim) {
 		if (!item.sources || item.sources.length == 0) {
 			return <></>;
 		}
 
 		const makeAnchor = (href:string, inner:string) => {
-			return <a href={href}><small>{inner}</small></a>;
+			return document.createElement('a');
+			//return <a href={href}><small>{inner}</small></a>;
 		}
 
 		const source = item.sources[0];

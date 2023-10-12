@@ -3,7 +3,7 @@ import { Player, AutoRotationGenerator, SimpleRotationGenerator } from './player
 import { SimUI, SimWarning } from './sim_ui';
 import { EventID, TypedEvent } from './typed_event';
 
-import { CharacterStats, StatMods } from './components/character_stats';
+import { CharacterStatsPreact, StatMods } from './components/character_stats';
 import { ContentBlock } from './components/content_block';
 import { EmbeddedDetailedResults } from './components/detailed_results';
 import { EncounterPickerConfig } from './components/encounter_picker';
@@ -16,6 +16,8 @@ import { GearTab } from './components/individual_sim_ui/gear_tab';
 import { SettingsTab } from './components/individual_sim_ui/settings_tab';
 import { RotationTab } from './components/individual_sim_ui/rotation_tab';
 import { TalentsTab } from './components/individual_sim_ui/talents_tab';
+
+import { h, Fragment, render } from 'preact';
 
 import {
 	Consumes,
@@ -340,11 +342,12 @@ export abstract class IndividualSimUI<SpecType extends Spec> extends SimUI {
 		this.raidSimResultsManager = addRaidSimAction(this);
 		addStatWeightsAction(this, this.individualConfig.epStats, this.individualConfig.epPseudoStats, this.individualConfig.epReferenceStat);
 
-		const characterStats = new CharacterStats(
-			this.rootElem.getElementsByClassName('sim-sidebar-footer')[0] as HTMLElement,
-			this.player,
-			this.individualConfig.displayStats,
-			this.individualConfig.modifyDisplayStats);
+		render(<CharacterStatsPreact
+		player={this.player}
+		stats={this.individualConfig.displayStats}
+		modifyDisplayStats={this.individualConfig.modifyDisplayStats}
+		/>, this.rootElem.getElementsByClassName('sim-sidebar-footer')[0]);
+
 	}
 
 	private addGearTab() {

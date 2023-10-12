@@ -4,7 +4,7 @@ import { swap } from '../utils.js';
 
 import { Input, InputConfig } from './input.js';
 
-import { element, fragment } from 'tsx-vanilla';
+import {h, Fragment, render, createRef} from 'preact';
 
 export type ListItemAction = 'create' | 'delete' | 'move' | 'copy';
 
@@ -67,7 +67,7 @@ export class ListPicker<ModObject, ItemType> extends Input<ModObject, Array<Item
 		this.config = {...DEFAULT_CONFIG, ...config};
 		this.itemPickerPairs = [];
 
-		this.rootElem.appendChild(
+		render(
 			<>
 				{config.title &&
 					<label className='list-picker-title form-label'>
@@ -75,8 +75,8 @@ export class ListPicker<ModObject, ItemType> extends Input<ModObject, Array<Item
 					</label>
 				}
 				<div className="list-picker-items"></div>
-			</>
-		)
+			</>, this.rootElem
+		);
 
 		if (this.config.hideUi) {
 			this.rootElem.classList.add('hide-ui');

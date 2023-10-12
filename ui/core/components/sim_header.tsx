@@ -4,7 +4,7 @@ import { SimUI } from '../sim_ui';
 import { Tooltip } from 'bootstrap';
 import { SimTab } from './sim_tab';
 
-import { element, fragment } from 'tsx-vanilla';
+import {h, Fragment, render, createRef} from 'preact';
 
 interface ToolbarLinkArgs {
 	parent: HTMLElement,
@@ -30,7 +30,7 @@ export class SimHeader extends Component {
 		this.simTabsContainer = this.rootElem.querySelector('.sim-tabs') as HTMLElement;
 		this.simToolbar = this.rootElem.querySelector('.sim-toolbar') as HTMLElement;
 
-		this.knownIssuesContent = <ul className='text-start ps-3 mb-0'></ul> as HTMLElement;
+		this.knownIssuesContent = document.createElement('ul');//<ul className='text-start ps-3 mb-0'></ul> as HTMLElement;
 		this.knownIssuesLink = this.addKnownIssuesLink();
 		this.addBugReportLink();
 		this.addDownloadBinaryLink();
@@ -51,7 +51,7 @@ export class SimHeader extends Component {
 	addTab(title: string, contentId: string) {
 		const isFirstTab = this.simTabsContainer.children.length == 0;
 
-		let classes = `${contentId} nav-item`;
+		/*let classes = `${contentId} nav-item`;
 		let tab = (
 			<li className={classes} attributes={{role:"presentation"}}>
 				<a className={`nav-link ${isFirstTab && 'active'}`}
@@ -71,7 +71,7 @@ export class SimHeader extends Component {
 		);
 		tab.setAttribute('aria-controls', contentId);
 
-		this.simTabsContainer.appendChild(tab);
+		this.simTabsContainer.appendChild(tab);*/
 	}
 
 	addSimTabLink(tab: SimTab) {
@@ -94,7 +94,7 @@ export class SimHeader extends Component {
 		const dropdownElem = this.rootElem.getElementsByClassName(cssClass)[0] as HTMLElement;
 		const menuElem = dropdownElem.getElementsByClassName('dropdown-menu')[0] as HTMLElement;
 
-		const itemElem = (
+		/*const itemElem = (
 			<li>
 				<a href="javascript:void(0)"
 					className='dropdown-item'
@@ -108,21 +108,20 @@ export class SimHeader extends Component {
 
 		const linkElem = itemElem.children[0];
 		linkElem.addEventListener('click', () => onClick(menuElem));
-		menuElem.appendChild(itemElem);
+		menuElem.appendChild(itemElem);*/
 	}
 
 	private addToolbarLink(args: ToolbarLinkArgs): HTMLElement {
-		let item = (
-			<div className="sim-toolbar-item">
+		let item = document.createElement('div');
+		/*item.innerHTML = `
 				<a 
-					href={args.href ? args.href : 'javascript:void(0)'}
-					className={args.classes}
-					target={args.href ? "_blank" : '_self'}
+					href=${args.href ? args.href : 'javascript:void(0)'}
+					className=${args.classes}
+					target=${args.href ? "_blank" : '_self'}
 				>
-					{args.icon && <i className={args.icon}></i>}
-					{args.text ? ` ${args.text} ` : ''} 
-				</a>
-			</div>);
+					${args.icon && <i className={args.icon}></i>}
+					${args.text ? ` ${args.text} ` : ''} 
+				</a>`;
 
 		let link = item.children[0];
 
@@ -142,7 +141,8 @@ export class SimHeader extends Component {
 			});
 		}
 
-		return args.parent.appendChild(item) as HTMLElement;
+		return args.parent.appendChild(item) as HTMLElement;*/
+		return item;
 	}
 
 	private addKnownIssuesLink(): HTMLElement {
@@ -155,7 +155,7 @@ export class SimHeader extends Component {
 	}
 
 	addKnownIssue(issue: string) {
-		this.knownIssuesContent.appendChild(<li>{issue}</li>);
+		//this.knownIssuesContent.appendChild(<li>{issue}</li>);
 		this.knownIssuesLink.classList.remove('hide');
 		Tooltip.getInstance(this.knownIssuesLink)?.setContent({'.tooltip-inner': this.knownIssuesContent});
 	}
@@ -254,29 +254,28 @@ export class SimHeader extends Component {
 	}
 
 	protected customRootElement(): HTMLElement {
-		return (
-			<header className="sim-header">
-				<div className="sim-header-container">
-					<ul className="sim-tabs nav nav-tabs" attributes={{role:"tablist"}}></ul>
-					<div className="import-export within-raid-sim-hide">
-						<div className="dropdown sim-dropdown-menu import-dropdown">
-							<a href="javascript:void(0)" className="import-link" attributes={{role:"button", 'aria-expanded':"false"}} dataset={{bsToggle:'dropdown', bsDisplay:'dynamic'}}>
-								<i className="fa fa-download"></i>
-								{' Import '}
+		let h = document.createElement('header');
+		h.innerHTML  = `
+				<div class="sim-header-container">
+					<ul class="sim-tabs nav nav-tabs" role="tablist"></ul>
+					<div class="import-export within-raid-sim-hide">
+						<div class="dropdown sim-dropdown-menu import-dropdown">
+							<a href="javascript:void(0)" class="import-link" role="button" aria-expanded="false" data-bs-toggle='dropdown' data-bs-display='dynamic'>
+								<i class="fa fa-download"></i>
+								${' Import '}
 							</a>
-							<ul className="dropdown-menu"></ul>
+							<ul class="dropdown-menu"></ul>
 						</div>
-						<div className="dropdown sim-dropdown-menu export-dropdown">
-							<a href="javascript:void(0)" className="export-link" attributes={{role:"button", 'aria-expanded':"false"}} dataset={{bsToggle:'dropdown', bsDisplay:'dynamic'}}>
-								<i className="fa fa-right-from-bracket"></i>
-								{' Export '}
+						<div class="dropdown sim-dropdown-menu export-dropdown">
+							<a href="javascript:void(0)" class="export-link" role="button" aria-expanded="false" data-bs-toggle='dropdown' data-bs-display='dynamic'>
+								<i class="fa fa-right-from-bracket"></i>
+								${' Export '}
 							</a>
-							<ul className="dropdown-menu"></ul>
+							<ul class="dropdown-menu"></ul>
 						</div>
 					</div>
-					<div className="sim-toolbar"></div>
-				</div>
-			</header>
-		) as HTMLElement;
+					<div class="sim-toolbar"></div>
+				</div>`;
+				return h;
 	}
 }

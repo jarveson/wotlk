@@ -3,7 +3,7 @@ import { TypedEvent } from '../typed_event.js';
 import { isRightClick } from '../utils.js';
 
 import { Input, InputConfig } from './input.js';
-import { element, ref } from 'tsx-vanilla';
+import {h, Fragment, render, createRef} from 'preact';
 
 // Data for creating an icon-based input component.
 // 
@@ -63,20 +63,21 @@ export class IconPicker<ModObject, ValueType> extends Input<ModObject, ValueType
 			this.rootAnchor.classList.add('use-counter');
 		}
 
-		let ia = ref<HTMLAnchorElement>();
-		let ia2 = ref<HTMLAnchorElement>();
-		let ce = ref<HTMLSpanElement>();
-		this.rootAnchor.appendChild(
+		let ia = createRef<HTMLAnchorElement>();
+		let ia2 = createRef<HTMLAnchorElement>();
+		let ce = createRef<HTMLSpanElement>();
+		let ele = 
 			<div className='icon-input-level-container'>
-				<a ref={ia} className="icon-picker-button icon-input-improved icon-input-improved1" dataset={{disableWowheadTouchTooltip:'true'}}></a>
-				<a ref={ia2} className="icon-picker-button icon-input-improved icon-input-improved2" dataset={{disableWowheadTouchTooltip:'true'}}></a>
+				<a ref={ia} className="icon-picker-button icon-input-improved icon-input-improved1" data-disable-wowhead-tooltip='true'></a>
+				<a ref={ia2} className="icon-picker-button icon-input-improved icon-input-improved2" data-disable-wowhead-tooltip='true'></a>
 				<span ref={ce} className={`icon-picker-label ${this.config.states > 2 ? '' : 'hide'}`}></span>
 			</div>
-		);
+		;
+		render(ele, this.rootElem)
 
-		this.improvedAnchor = ia.value!;
-		this.improvedAnchor2 = ia2.value!;
-		this.counterElem = ce.value!;
+		this.improvedAnchor = ia.current!;
+		this.improvedAnchor2 = ia2.current!;
+		this.counterElem = ce.current!;
 
 		this.config.id.fillAndSet(this.rootAnchor, true, true);
 

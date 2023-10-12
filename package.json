@@ -29,7 +29,9 @@
         "@preact/signals": "^1.2.1",
         "bootstrap": "5.2.3",
         "preact": "^10.18.1",
+        "react": "npm:@preact/compat@^17.1.2",
         "react-bootstrap": "^2.9.0",
+        "react-dom": "npm:@preact/compat@^17.1.2",
         "tippy.js": "^6.3.7"
     }
 }

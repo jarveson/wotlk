@@ -2,7 +2,7 @@ import { Tooltip } from 'bootstrap';
 import { Component } from '../components/component.js';
 import { TypedEvent } from '../typed_event.js';
 
-import { element, fragment } from 'tsx-vanilla';
+import {h, Fragment, render, createRef} from 'preact';
 
 // Config for displaying a warning to the user whenever a condition is met.
 interface SimWarning {
@@ -30,7 +30,7 @@ export class ResultsViewer extends Component {
 
 	constructor(parentElem: HTMLElement) {
 		super(parentElem, 'results-viewer');
-		this.rootElem.appendChild(
+		render(
 			<>
 				<div className="results-pending">
 				<div className="loader"></div>
@@ -39,7 +39,7 @@ export class ResultsViewer extends Component {
 				</div>
 				<div className="warning-zone" style="text-align: center">
 				</div>
-			</>
+			</>, this.rootElem
 		);
 		this.pendingElem = this.rootElem.getElementsByClassName('results-pending')[0] as HTMLElement;
 		this.contentElem = this.rootElem.getElementsByClassName('results-content')[0] as HTMLElement;
@@ -53,18 +53,18 @@ export class ResultsViewer extends Component {
 	}
 
 	private addWarningLink(args: WarningLinkArgs): HTMLElement {
-		let item = (
-			<div className="sim-toolbar-item">
+		let item = document.createElement('div');
+		item.innerHTML = `
+			<div class="sim-toolbar-item">
 				<a
-					href={args.href ? args.href : 'javascript:void(0)'}
-					target={args.href ? '_blank' : '_self'}
-					className={args.classes}
+					href=${args.href ? args.href : 'javascript:void(0)'}
+					target=${args.href ? '_blank' : '_self'}
+					class=${args.classes}
 				>
-					{args.icon && <i className={args.icon}></i>}
-					{args.text ? args.text : ''}
+					${args.icon && `<i class=${args.icon}></i>`}
+					${args.text ? args.text : ''}
 				</a>
-			</div>
-		);
+			</div>`;
 
 		let link = item.children[0] as HTMLElement;
 

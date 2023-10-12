@@ -236,9 +236,9 @@ interface BSLP {
 
 const BonusStatsLink = (props: BSLP) => {
 	let statName = getClassStatName(props.stat, props.player.getClass());
-	let [shown, setShown] = useState(false);
+	let [shown, setShown] = useState(true);
 
-	let picker = <NumberPickerP
+	let picker = <Popover><NumberPickerP
 					modObject={props.player}
 					label={`Bonus ${statName}`}
 					extraCssClasses={['mb-0']}
@@ -249,14 +249,14 @@ const BonusStatsLink = (props: BSLP) => {
 						player.setBonusStats(eventID, bonusStats);
 						setShown(false);
 					}}
-				/>;
+				/></Popover>;
 
 	return (
 		<OverlayTrigger
 			trigger='click'
 			placement='right'
 			overlay={picker}
-			show={shown}
+			//show={shown}
 		>
 			<a
 				href="javascript:void(0)"
@@ -388,18 +388,18 @@ const IndividualStat = (props: ISP) => {
 
 	let bonusClass = bonusStatValue == 0 ? 'text-white' : bonusStatValue > 0 ? 'text-success' : 'text-danger';
 
-	let aref = useRef(null);
 	return(
+		<OverlayTrigger
+			overlay={<Tooltip>{tooltipContent}</Tooltip>}
+			trigger='hover'
+		>
 		<a
-			ref={aref}
 			href="javascript:void(0)" 
 			className={`stat-value-link ${bonusClass}`}
 			role='button'>
 			{`${statDisplayString(props.finalStats, props.finalStats, props.stat)} `}
-			<Overlay target={aref}>
-				<Tooltip>{tooltipContent}</Tooltip>
-			</Overlay>
 		</a>
+		</OverlayTrigger>
 	)
 }
 

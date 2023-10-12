@@ -4,7 +4,7 @@ import { TypedEvent } from '../typed_event.js';
 
 import { Input, InputConfig } from './input.js';
 
-import { element, fragment } from 'tsx-vanilla';
+import {h, Fragment, render, createRef} from 'preact';
 
 export interface IconEnumValueConfig<ModObject, T> {
 	value: T,
@@ -63,27 +63,24 @@ export class IconEnumPicker<ModObject, T> extends Input<ModObject, T> {
 				title: config.tooltip
 			});
 		}
-		this.rootElem.appendChild(
+		let ele = (
 			<>
 				<a
 					href="javascript:void(0)"
 					className="icon-picker-button"
-					attributes={{
-						'aria-expanded':"false",
-						role: 'button'
-					}}
-					dataset={{
-						bsToggle: 'dropdown',
-						bsPlacement: 'bottom',
-						whtticon:"false",
-						disableWowheadTouchTooltip:'true'
-					}}
+					aria-expanded='false'
+					role='button'
+					data-bs-toggle='dropdown'
+					data-bs-placement='bottom'
+					data-whtticon='false'
+					data-disable-wowhead-touch-tooltip='true'
 				>
 					<span className='icon-picker-label'></span>
 				</a>
 				<ul className="dropdown-menu"></ul>
 			</>
-		)
+		);
+		render(ele, this.rootElem);
 
 		this.buttonElem = this.rootElem.querySelector('.icon-picker-button') as HTMLAnchorElement;
 		this.buttonText = this.buttonElem.querySelector('.icon-picker-label') as HTMLElement;

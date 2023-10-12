@@ -2,8 +2,7 @@ import { Tooltip } from 'bootstrap';
 import { EventID, TypedEvent } from '../typed_event.js';
 
 import { Component } from './component.js';
-
-import { element, fragment } from 'tsx-vanilla'
+import {h, Fragment, render, createRef} from 'preact';
 
 /**
  * Data for creating a new input UI element.
@@ -63,14 +62,13 @@ export abstract class Input<ModObject, T, V = T> extends Component {
 		});
 	}
 
-	private buildLabel(config: InputConfig<ModObject, T, V>): JSX.Element {
-		let dataset = {};
-
-		let label = (
+	private buildLabel(config: InputConfig<ModObject, T, V>) {
+		let label =document.createElement('label');
+		/*(
 			<label className="form-label">
 				{config.label}
 			</label>
-		);
+		);*/
 
 		if (config.labelTooltip)
 			new Tooltip(label, {

@@ -9,7 +9,7 @@ import { isRightClick } from '../utils.js';
 import { sum } from '../utils.js';
 import { Player } from '../player.js';
 
-import { element, fragment } from 'tsx-vanilla';
+import {h, Fragment, render, createRef} from 'preact';
 
 const MAX_POINTS_PLAYER = 71;
 const MAX_POINTS_HUNTER_PET = 16;
@@ -40,7 +40,7 @@ export class TalentsPicker<ModObject, TalentsProto> extends Input<ModObject, str
 		this.numRows = Math.max(...config.trees.map(treeConfig => treeConfig.talents.map(talentConfig => talentConfig.location.rowIdx).flat()).flat()) + 1;
 		this.numCols = Math.max(...config.trees.map(treeConfig => treeConfig.talents.map(talentConfig => talentConfig.location.colIdx).flat()).flat()) + 1;
 
-		this.rootElem.appendChild(
+		/*this.rootElem.appendChild(
 			<div id="talents-carousel" className="carousel slide">
 				<div className="carousel-inner">
 				</div>
@@ -53,7 +53,7 @@ export class TalentsPicker<ModObject, TalentsProto> extends Input<ModObject, str
 					<span className="visually-hidden">Next</span>
 				</button>
 			</div>
-		);
+		);*/
 
 		const carouselContainer = this.rootElem.querySelector('.carousel-inner') as HTMLElement;
 		const carouselPrevBtn = this.rootElem.querySelector('.carousel-control-prev') as HTMLButtonElement;
@@ -158,7 +158,7 @@ class TalentTreePicker<TalentsProto> extends Component {
 		this.numPoints = 0;
 		this.picker = picker;
 
-		this.rootElem.appendChild(
+		/*this.rootElem.appendChild(
 			<>
 				<div className="talent-tree-header">
 					<img src={getSpecIcon(klass, specNumber)} className="talent-tree-icon" />
@@ -171,7 +171,7 @@ class TalentTreePicker<TalentsProto> extends Component {
 				<div className="talent-tree-background"></div>
 				<div className="talent-tree-main"></div>
 			</>
-		);
+		);*/
 
 		this.title = this.rootElem.getElementsByClassName('talent-tree-title')[0] as HTMLElement;
 		this.pointsElem = this.rootElem.querySelector('.talent-tree-points') as HTMLElement;
@@ -290,7 +290,7 @@ class TalentReqArrow extends Component {
 				this.rootElem.dataset.reqArrowRowSize = String(Math.abs(parentLoc.rowIdx - childLoc.rowIdx));
 				rowEnd += 1;
 				colEnd = this.dir == 'rightdown' ? colEnd+1 : colEnd-1;
-				this.rootElem.appendChild(<div></div>)
+				this.rootElem.appendChild(document.createElement('div'));
 			}
 		}
 

@@ -19,7 +19,7 @@ import {
 import { actionColors } from './color_settings.js';
 import { ResultComponent, ResultComponentConfig, SimResultData } from './result_component.js';
 import tippy from 'tippy.js';
-import { element, fragment } from 'tsx-vanilla';
+import {h, Fragment, render, createRef} from 'preact';
 
 declare var ApexCharts: any;
 
@@ -53,7 +53,7 @@ export class Timeline extends ResultComponent {
 		this.hiddenIds = [];
 		this.hiddenIdsChangeEmitter = new TypedEvent<void>();
 
-		this.rootElem.appendChild(
+		/*this.rootElem.appendChild(
 			<div className="timeline-disclaimer">
 				<div className="d-flex flex-column">
 					<p>
@@ -83,7 +83,7 @@ export class Timeline extends ResultComponent {
 					</div>
 				</div>
 			</div>
-		)
+		)*/
 
 		this.chartPicker = this.rootElem.getElementsByClassName('timeline-chart-picker')[0] as HTMLSelectElement;
 		this.chartPicker.addEventListener('change', () => {
@@ -476,7 +476,7 @@ export class Timeline extends ResultComponent {
 
 	private clearRotationChart() {
 		this.rotationLabels.innerText = '';
-		this.rotationLabels.appendChild(
+		/*this.rotationLabels.appendChild(
 			<div className="rotation-label-header"></div>
 		);
 
@@ -485,7 +485,7 @@ export class Timeline extends ResultComponent {
 			<div className="rotation-timeline-header">
 				<canvas className="rotation-timeline-canvas"></canvas>
 			</div>
-		);
+		);*/
 		this.rotationHiddenIdsContainer.innerText = '';
 		this.hiddenIdsChangeEmitter = new TypedEvent<void>();
 	}
@@ -600,8 +600,8 @@ export class Timeline extends ResultComponent {
 		return castsByAbility;
 	}
 
-	private makeLabelElem(actionId: ActionId, isHiddenLabel: boolean): JSX.Element {
-		const labelText = idsToGroupForRotation.includes(actionId.spellId) ? actionId.baseName : actionId.name;
+	private makeLabelElem(actionId: ActionId, isHiddenLabel: boolean) {
+		/*const labelText = idsToGroupForRotation.includes(actionId.spellId) ? actionId.baseName : actionId.name;
 
 		let labelElem = (
 			<div className={`rotation-label rotation-row ${isHiddenLabel ? 'rotation-label-hidden' : ''}`}>
@@ -637,11 +637,13 @@ export class Timeline extends ResultComponent {
 		updateHidden();
 		const labelIcon = labelElem.getElementsByClassName('rotation-label-icon')[0] as HTMLAnchorElement;
 		actionId.setBackgroundAndHref(labelIcon);
-		return labelElem;
+		return labelElem;*/
+		return document.createElement('label')
+
 	}
 
-	private makeRowElem(actionId: ActionId, duration: number): JSX.Element {
-		const rowElem = (
+	private makeRowElem(actionId: ActionId, duration: number) {
+		/*const rowElem = (
 			<div className='rotation-timeline-row rotation-row' 
 				 style={{
 					width: this.timeToPx(duration),
@@ -658,7 +660,8 @@ export class Timeline extends ResultComponent {
 		};
 		this.hiddenIdsChangeEmitter.on(updateHidden);
 		updateHidden();
-		return rowElem;
+		return rowElem;*/
+		return document.createElement('div')
 	}
 
 	private addPetRow(petName: string, duration: number) {
@@ -672,8 +675,8 @@ export class Timeline extends ResultComponent {
 			const labelElem = document.createElement('div');
 			labelElem.classList.add('rotation-label', 'rotation-row');
 			const labelText = idsToGroupForRotation.includes(filledActionId.spellId) ? filledActionId.baseName : filledActionId.name;
-			labelElem.appendChild(<a className="rotation-label-icon"></a>);
-			labelElem.appendChild(<span className="rotation-label-text">{labelText}</span>);
+			//labelElem.appendChild(<a className="rotation-label-icon"></a>);
+			//labelElem.appendChild(<span className="rotation-label-text">{labelText}</span>);
 			const labelIcon = labelElem.getElementsByClassName('rotation-label-icon')[0] as HTMLAnchorElement;
 			filledActionId.setBackgroundAndHref(labelIcon);
 			iconElem.appendChild(labelElem);
@@ -706,7 +709,7 @@ export class Timeline extends ResultComponent {
 			</div>
 		);
 
-		this.rotationLabels.appendChild(labelElem);
+		//this.rotationLabels.appendChild(labelElem);
 
 		const rowElem = (
 			<div className='rotation-timeline-row rotation-row' 
@@ -715,7 +718,7 @@ export class Timeline extends ResultComponent {
 				 }}>
 			</div>
 		)
-
+/*
 		resourceLogs.forEach((resourceLogGroup, i) => {
 			const cNames = resourceNames.get(resourceType)!.toLowerCase().replaceAll(' ', '-');
 			const resourceElem = (
@@ -728,18 +731,18 @@ export class Timeline extends ResultComponent {
 			)
 
 			if (percentageResources.includes(resourceType)) {
-				resourceElem.textContent = (resourceLogGroup.valueAfter / startValue * 100).toFixed(0) + '%';
+				//resourceElem.textContent = (resourceLogGroup.valueAfter / startValue * 100).toFixed(0) + '%';
 			} else {
 				if (resourceType == ResourceType.ResourceTypeEnergy) {
 					const bgElem = document.createElement('div');
 					bgElem.classList.add('rotation-timeline-resource-fill')
 					bgElem.style.height = (resourceLogGroup.valueAfter / startValue * 100).toFixed(0) + '%';
-					resourceElem.appendChild(bgElem)
+					//resourceElem.appendChild(bgElem)
 				} else {
-					resourceElem.textContent = Math.floor(resourceLogGroup.valueAfter).toFixed(0);
+					//resourceElem.textContent = Math.floor(resourceLogGroup.valueAfter).toFixed(0);
 				}
 			}
-			rowElem.appendChild(resourceElem);
+			//rowElem.appendChild(resourceElem);
 
 			tippy(resourceElem, {
 				content: this.resourceTooltipElem(resourceLogGroup, startValue, false),
@@ -747,12 +750,12 @@ export class Timeline extends ResultComponent {
 				ignoreAttributes: true,
 			});
 		});
-		this.rotationTimeline.appendChild(rowElem);
+		this.rotationTimeline.appendChild(rowElem);*/
 	}
 
 	private addCastRow(castLogs: Array<CastLog>, aurasById: Array<Array<AuraUptimeLog>>, duration: number) {
 		const actionId = castLogs[0].actionId!;
-
+/*
 		this.rotationLabels.appendChild(this.makeLabelElem(actionId, false));
 		this.rotationHiddenIdsContainer.appendChild(this.makeLabelElem(actionId, true));
 
@@ -841,6 +844,7 @@ export class Timeline extends ResultComponent {
 			.forEach(auraUptimeLogs => this.applyAuraUptimeLogsToRow(auraUptimeLogs, rowElem));
 
 		this.rotationTimeline.appendChild(rowElem);
+		*/
 	}
 
 	private addAuraRow(auraUptimeLogs: Array<AuraUptimeLog>, duration: number) {
@@ -851,11 +855,11 @@ export class Timeline extends ResultComponent {
 		this.rotationHiddenIdsContainer.appendChild(this.makeLabelElem(actionId, true));
 		this.rotationTimeline.appendChild(rowElem);
 
-		this.applyAuraUptimeLogsToRow(auraUptimeLogs, rowElem);
+		//this.applyAuraUptimeLogsToRow(auraUptimeLogs, rowElem);
 	}
 
 	private applyAuraUptimeLogsToRow(auraUptimeLogs: Array<AuraUptimeLog>, rowElem: JSX.Element) {
-		auraUptimeLogs.forEach(aul => {
+		/*auraUptimeLogs.forEach(aul => {
 			const auraElem = document.createElement('div');
 			auraElem.classList.add('rotation-timeline-aura');
 			auraElem.style.left = this.timeToPx(aul.gainedAt);
@@ -881,7 +885,7 @@ export class Timeline extends ResultComponent {
 				stacksChangeElem.textContent = String(scl.newStacks);
 				auraElem.appendChild(stacksChangeElem);
 			});
-		});
+		});*/
 	}
 
 	private timeToPxValue(time: number): number {
@@ -1012,11 +1016,13 @@ export class Timeline extends ResultComponent {
 	}	
 	
 	private resourceTooltip(log: ResourceChangedLogGroup, maxValue: number, includeAuras: boolean): string {
-		return this.resourceTooltipElem(log, maxValue, includeAuras).outerHTML;
+		//return this.resourceTooltipElem(log, maxValue, includeAuras).outerHTML;
+		return '';
 	}
 
 	private tooltipLogItem(log: SimLog, value: string): string {
-		return this.tooltipLogItemElem(log, value).outerHTML;
+		//return this.tooltipLogItemElem(log, value).outerHTML;
+		return '';
 	}	
 
 	private tooltipLogItemElem(log: SimLog, value: string): JSX.Element {
@@ -1033,7 +1039,7 @@ export class Timeline extends ResultComponent {
 		if (log.activeAuras.length == 0) {
 			return '';
 		}
-		return this.tooltipAurasSectionElem(log).outerHTML;
+		return ''; //this.tooltipAurasSectionElem(log).outerHTML;
 	}
 
 	private tooltipAurasSectionElem(log: SimLog): JSX.Element {

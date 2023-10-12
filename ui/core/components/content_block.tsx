@@ -1,8 +1,6 @@
 import { Tooltip } from 'bootstrap';
 import { Component } from './component.js';
 
-import { element as h, fragment as Fragment, TSXJSX } from '../tsx-vanilla.js';
-
 export interface ContentBlockHeaderConfig {
 	title: string,
 	extraCssClasses?: Array<string>,
@@ -42,23 +40,24 @@ export class ContentBlock extends Component {
 	private buildHeader(): HTMLElement | null {
 		if (this.config.header && Object.keys(this.config.header).length) {
 			let TitleTag = this.config.header.titleTag || 'h6';
-			let header =(
+			let header = document.createElement('div');
+			header.innerHTML = `
 				<div className="content-block-header">
-					<TitleTag className="content-block-title">
-						{this.config.header.title}
-					</TitleTag>
-				</div>
-			) as unknown as TSXJSX.Element;
+					<${TitleTag} className="content-block-title">
+						${this.config.header.title}
+					</${TitleTag}>
+				</div>`
+			;
 
 			if (this.config.header.extraCssClasses) {
 				header.classList.add(...this.config.header.extraCssClasses);
 			}
 
-			if (this.config.header.tooltip)
+			/*if (this.config.header.tooltip)
 				Tooltip.getOrCreateInstance(header.querySelector('.content-block-title') as HTMLElement,  {
 					html: true,
 					title: this.config.header.tooltip
-				});
+				});*/
 
 			this.rootElem.appendChild(header);
 

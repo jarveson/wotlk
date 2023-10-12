@@ -5,6 +5,10 @@ import { defineConfig } from 'vite'
 export default defineConfig(({ command, mode }) => ({
 	base: "/wotlk/",
 	root: path.join(__dirname, "ui"),
+	alias: {
+		react: 'preact/compat',
+		'react-dom': 'preact/compat',
+	},
 	build: {
 		outDir: path.join(__dirname, "dist", "wotlk"),
 		minify: mode === "development" ? false : "terser",

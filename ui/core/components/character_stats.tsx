@@ -203,7 +203,7 @@ function NumberPickerP<ModObject>(props: NPP<ModObject, number>) {
 		label={props.label}
 		labelTooltip={props.labelTooltip}
 		inline={props.inline}
-		extraCssClasses={props.extraCssClasses}
+		extraCssClasses={cssClasses}
 		defaultValue={props.defaultValue}
 		enableWhen={props.enableWhen}
 		showWhen={props.showWhen}
@@ -222,9 +222,8 @@ function NumberPickerP<ModObject>(props: NPP<ModObject, number>) {
 			onChange={onchange}
 			onInput={oninput}
 			size={inputSize}
-		>
-			{inputValue}
-		</input>
+			value={inputValue}
+		/>
 	</InputP>
 	);
 }
@@ -238,18 +237,22 @@ const BonusStatsLink = (props: BSLP) => {
 	let statName = getClassStatName(props.stat, props.player.getClass());
 	let [shown, setShown] = useState(true);
 
-	let picker = <Popover><NumberPickerP
-					modObject={props.player}
-					label={`Bonus ${statName}`}
-					extraCssClasses={['mb-0']}
-					changedEvent={(player: Player<any>) => player.bonusStatsChangeEmitter}
-					getValue={(player: Player<any>) => player.getBonusStats().getStat(props.stat)}
-					setValue={(eventID: EventID, player: Player<any>, newValue: number) => {
-						const bonusStats = player.getBonusStats().withStat(props.stat, newValue);
-						player.setBonusStats(eventID, bonusStats);
-						setShown(false);
-					}}
-				/></Popover>;
+	let picker = <Popover>
+					<Popover.Body>
+						<NumberPickerP
+							modObject={props.player}
+							label={`Bonus ${statName}`}
+							extraCssClasses={['mb-0', 'bonus-stats-popover']}
+							changedEvent={(player: Player<any>) => player.bonusStatsChangeEmitter}
+							getValue={(player: Player<any>) => player.getBonusStats().getStat(props.stat)}
+							setValue={(eventID: EventID, player: Player<any>, newValue: number) => {
+								const bonusStats = player.getBonusStats().withStat(props.stat, newValue);
+								player.setBonusStats(eventID, bonusStats);
+								setShown(false);
+							}}
+					/>
+					</Popover.Body>
+				</Popover>;
 
 	return (
 		<OverlayTrigger

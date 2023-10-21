@@ -2,9 +2,10 @@ import { Tooltip } from 'bootstrap';
 import { EventID, TypedEvent } from '../typed_event.js';
 import { swap } from '../utils.js';
 
+import { h, Fragment, render } from 'preact';
 import { Input, InputConfig } from './input.js';
 
-import {h, Fragment, render, createRef} from 'preact';
+//import { element, fragment } from 'tsx-vanilla';
 
 export type ListItemAction = 'create' | 'delete' | 'move' | 'copy';
 
@@ -67,16 +68,14 @@ export class ListPicker<ModObject, ItemType> extends Input<ModObject, Array<Item
 		this.config = {...DEFAULT_CONFIG, ...config};
 		this.itemPickerPairs = [];
 
-		render(
-			<>
-				{config.title &&
-					<label className='list-picker-title form-label'>
-						{config.title}
-					</label>
-				}
-				<div className="list-picker-items"></div>
-			</>, this.rootElem
-		);
+		render(<>
+			{config.title &&
+				<label className='list-picker-title form-label'>
+					{config.title}
+				</label>
+			}
+			<div className="list-picker-items"></div>
+		</>, this.rootElem);
 
 		if (this.config.hideUi) {
 			this.rootElem.classList.add('hide-ui');

@@ -276,7 +276,7 @@ export abstract class IndividualSimUI<SpecType extends Spec> extends SimUI {
 		this.addGearTab();
 		this.bt = this.addBulkTab();
 		this.addSettingsTab();
-		this.addTalentsTab();
+		//this.addTalentsTab();
 		if (aplLaunchStatuses[this.player.spec] != LaunchStatus.Unlaunched) {
 			this.addRotationTab();
 		}
